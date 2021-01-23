@@ -21,13 +21,13 @@ print(weather)
 
 # get specific province's forecast
 province_weather = await bmkg.get_forecast("aceh")
-print(weather)
+print(province_weather)
 
 # get wind forecast image
 image = await bmkg.get_wind_forecast()
 with open("wind-forecast.jpg", "wb") as f:
     f.write(image)
-	f.close()
+    f.close()
 
 # close the class once done
 await bmkg.close()
