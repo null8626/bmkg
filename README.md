@@ -1,5 +1,5 @@
 # bmkg
-Python wrapper for the BMKG (Meteorology, Climatology, and Geophysical Agency) API.<br>
+Unofficial Python wrapper for the BMKG (Meteorology, Climatology, and Geophysical Agency) API.<br>
 Original API documentation: [https://data.bmkg.go.id/](https://data.bmkg.go.id/)<br>
 Main official source: [https://www.bmkg.go.id/](https://www.bmkg.go.id/)<br>
 
@@ -22,6 +22,11 @@ print(weather)
 # get specific province's forecast
 province_weather = await bmkg.get_forecast("aceh")
 print(province_weather)
+
+# get history of the latest earthquakes
+earthquakes = await bmkg.get_recent_earthquakes()
+for earthquake in earthquakes:
+	print(earthquake)
 
 # get wind forecast image
 image = await bmkg.get_wind_forecast()

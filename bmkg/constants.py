@@ -1,3 +1,20 @@
+DIRECTION = {
+    "BaratDaya": "southwest",
+    "BaratLaut": "northwest",
+    "Tenggara": "southeast",
+    "TimurLaut": "northeast",
+    "Utara": "north",
+    "Selatan": "south",
+    "Timur": "east",
+    "Barat": "west"
+}
+
+TIMEZONE_OFFSETS = {
+    "WIB": 7,
+    "WITA": 8,
+    "WIT": 9
+}
+
 WIND_DIRECTION_CODE = {
     "N": "North",
     "NNE": "North-Northeast",
@@ -11,6 +28,7 @@ WIND_DIRECTION_CODE = {
     "SW": "Southwest",
     "WSW": "West-Southwest",
     "W": "West",
+    "S": "South",
     "WNW": "West-Northwest",
     "NW": "Northwest",
     "NNW": "North-Northwest",
@@ -18,25 +36,25 @@ WIND_DIRECTION_CODE = {
 }
 
 WEATHER_CODE = {
-    "0": "Clear Skies",
-    "1": "Partly Cloudy",
-    "2": "Partly Cloudy",
-    "3": "Mostly Cloudy",
-    "4": "Overcast",
-    "5": "Haze",
-    "10": "Smoke",
-    "45": "Fog",
-    "60": "Light Rain",
-    "61": "Rain",
-    "63": "Heavy Rain",
-    "80": "Isolated Shower",
-    "95": "Severe Thunderstorm",
-    "97": "Severe Thunderstorm",
-    "100": "Clear Skies",
-    "101": "Partly Cloudy",
-    "102": "Partly Cloudy",
-    "103": "Mostly Cloudy",
-    "104": "Overcast"
+    "0":   ("Clear Skies", "https://www.bmkg.go.id/asset/img/icon-cuaca/cerah-{}.png"),
+    "1":   ("Partly Cloudy", "https://www.bmkg.go.id/asset/img/icon-cuaca/cerah%20berawan-{}.png"),
+    "2":   ("Partly Cloudy", "https://www.bmkg.go.id/asset/img/icon-cuaca/cerah%20berawan-{}.png"),
+    "3":   ("Mostly Cloudy", "https://www.bmkg.go.id/asset/img/icon-cuaca/berawan-{}.png"),
+    "4":   ("Overcast", "https://www.bmkg.go.id/asset/img/icon-cuaca/berawan%20tebal-{}.png"),
+    "5":   ("Haze", "https://www.bmkg.go.id/asset/img/icon-cuaca/udara%20kabur-{}.png"),
+    "10":  ("Smoke", "https://www.bmkg.go.id/asset/img/icon-cuaca/asap-{}.png"),
+    "45":  ("Fog", "https://www.bmkg.go.id/asset/img/icon-cuaca/kabut-{}.png"),
+    "60":  ("Light Rain", "https://www.bmkg.go.id/asset/img/icon-cuaca/hujan%20ringan-{}.png"),
+    "61":  ("Rain", "https://www.bmkg.go.id/asset/img/icon-cuaca/hujan%20sedang-{}.png"),
+    "63":  ("Heavy Rain", "https://www.bmkg.go.id/asset/img/icon-cuaca/hujan%20lebat-{}.png"),
+    "80":  ("Isolated Shower", "https://www.bmkg.go.id/asset/img/icon-cuaca/hujan%20lokal-{}.png"),
+    "95":  ("Severe Thunderstorm", "https://www.bmkg.go.id/asset/img/icon-cuaca/hujan%20petir-{}.png"),
+    "97":  ("Severe Thunderstorm", "https://www.bmkg.go.id/asset/img/icon-cuaca/hujan%20petir-{}.png"),
+    "100": ("Clear Skies", "https://www.bmkg.go.id/asset/img/icon-cuaca/cerah-{}.png"),
+    "101": ("Partly Cloudy", "https://www.bmkg.go.id/asset/img/icon-cuaca/cerah%20berawan-{}.png"),
+    "102": ("Partly Cloudy", "https://www.bmkg.go.id/asset/img/icon-cuaca/cerah%20berawan-{}.png"),
+    "103": ("Mostly Cloudy", "https://www.bmkg.go.id/asset/img/icon-cuaca/berawan-{}.png"),
+    "104": ("Overcast", "https://www.bmkg.go.id/asset/img/icon-cuaca/berawan%20tebal-{}.png")
 }
 
 PROVINCES = {

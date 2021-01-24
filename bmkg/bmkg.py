@@ -1,8 +1,9 @@
 import aiohttp
+from xmltodict import parse
 from .weather import Weather
 from .constants import PROVINCES
+from .earthquake import Earthquake, EarthquakeFelt, TsunamiEarthquake
 from datetime import datetime
-from io import BytesIO
 
 class BMKG:
     def __repr__(self):
@@ -84,6 +85,45 @@ class BMKG:
         byte = await response.read()
         self._image_cache["forest_fires"] = byte
         return byte
+    
+    async def get_recent_earthquake_map(self):
+        if self._image_cache.get("latest_earthquake") and (self._current_day() == self._day):
+            return self._image_cache["latest_earthquake"]
+        
+        response = await self.session.get("https://data.bmkg.go.id/eqmap.gif")
+        byte = await response.read()
+        self._image_cache["latest_earthquake"] = byte
+        return byte
+
+    async def get_recent_earthquake(self):
+        response = await self.session.get("https://data.bmkg.go.id/gempaterkini.xml")
+        text = await response.text()
+        return Earthquake(text, metric=self.metric)
+    
+    async def get_recent_tsunami(self):
+        response = await self.session.get("https://data.bmkg.go.id/lasttsunami.xml")
+        text = await response.text()
+        return TsunamiEarthquake(text, metric=self.metric)
+    
+    async def get_earthquakes_felt(self):
+        response = await self.session.get("https://data.bmkg.go.id/gempadirasakan.xml")
+        text = await response.text()
+        result = parse(text)["Infogempa"]
+        earthquakes = []
+        
+        for earthquake in result["Gempa"]:
+            earthquakes.append(EarthquakeFelt(earthquake, metric=self.metric))
+        return earthquakes
+
+    async def get_recent_earthquakes(self):
+        response = await self.session.get("https://data.bmkg.go.id/gempaterkini.xml")
+        text = await response.text()
+        result = parse(text)["Infogempa"]
+        earthquakes = []
+        
+        for earthquake in result["gempa"]:
+            earthquakes.append(Earthquake(earthquake, as_list_element=True, metric=self.metric))
+        return earthquakes
 
     async def _handle_request(self, xml_path: str):
         response = await self.session.get(self.base_url + xml_path)
