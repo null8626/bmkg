@@ -26,7 +26,7 @@ print(province_weather)
 # get history of the latest earthquakes
 earthquakes = await bmkg.get_recent_earthquakes()
 for earthquake in earthquakes:
-	print(earthquake)
+    print(earthquake)
 
 # get wind forecast image
 image = await bmkg.get_wind_forecast()
