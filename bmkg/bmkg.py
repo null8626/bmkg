@@ -26,13 +26,10 @@ class BMKG:
         return f"{current.year}{current.month}{current.day}"
     
     async def get_forecast(self, location: str = None):
-        """
-        Gets the forecast.
-        """
         if not location:
             return await self._handle_request(PROVINCES["indonesia"])
         
-        location = str(location).lower().replace(" ", "_").replace("di", "dki")
+        location = str(location).lower().replace(" ", "_").replace("di", "dki").replace("jogja", "yogya").lstrip("provinsi ")
         if location in PROVINCES.keys():
             return await self._handle_request(PROVINCES[location])
         

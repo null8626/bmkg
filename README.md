@@ -1,7 +1,5 @@
 # bmkg
-Unofficial Python wrapper for the BMKG (Meteorology, Climatology, and Geophysical Agency) API.<br>
-Original API documentation: [https://data.bmkg.go.id/](https://data.bmkg.go.id/)<br>
-Main official source: [https://www.bmkg.go.id/](https://www.bmkg.go.id/)<br>
+Unofficial Python wrapper for the [BMKG (Meteorology, Climatology, and Geophysical Agency)](https://www.bmkg.go.id/) API.<br>
 
 ## Installation
 ```bash
