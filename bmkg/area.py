@@ -15,7 +15,7 @@ class Area:
         self.level           = int(data["@level"])
         self.humidity_type   = data["parameter"][0]["timerange"][0]["@type"]
         self.url             = f"https://www.bmkg.go.id/cuaca/prakiraan-cuaca.bmkg?AreaID={self.id}"
-                       
+        
         self.humidity        = list(map(self._parse_humidity, data["parameter"][0]["timerange"]))
         self.max_humidity    = list(map(self._parse_humidity, data["parameter"][1]["timerange"]))
         self.min_humidity    = list(map(self._parse_humidity, data["parameter"][3]["timerange"]))
@@ -59,7 +59,7 @@ class Area:
                 int(x["@datetime"][10:])
             ),
             "value": WEATHER_CODE[x["value"]["#text"]][0],
-            "icon_url": WEATHER_CODE[x["value"]["#text"]][1]
+            "icon_url": WEATHER_CODE[x["value"]["#text"]][1].format("am" if int(x["@datetime"][8:10]) < 12 else "pm")
         }, data["parameter"][6]["timerange"]))
     
     def _parse_temperature(self, data):

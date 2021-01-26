@@ -1,0 +1,57 @@
+Metadata-Version: 2.1
+Name: bmkg
+Version: 0.0.1
+Summary: Unofficial BMKG API Python Wrapper.
+Home-page: https://github.com/vierofernando/bmkg
+Author: vierofernando
+Author-email: vierofernando9@gmail.com
+License: MIT
+Download-URL: https://github.com/vierofernando/bmkg/archive/0.0.1.tar.gz
+Description: # bmkg
+        Unofficial Python wrapper for the [BMKG (Meteorology, Climatology, and Geophysical Agency)](https://www.bmkg.go.id/) API.<br>
+        
+        ## Installation
+        ```bash
+        $ pip install bmkg
+        ```
+        
+        ## Usage
+        ```py
+        from bmkg import BMKG
+        
+        # initiate the class
+        bmkg = BMKG()
+        
+        # get indonesia's forecast
+        weather = await bmkg.get_forecast()
+        print(weather)
+        
+        # get specific province's forecast
+        province_weather = await bmkg.get_forecast("aceh")
+        print(province_weather)
+        
+        # get history of the latest earthquakes
+        earthquakes = await bmkg.get_recent_earthquakes()
+        for earthquake in earthquakes:
+            print(earthquake)
+        
+        # get wind forecast image
+        image = await bmkg.get_wind_forecast()
+        with open("wind-forecast.jpg", "wb") as f:
+            f.write(image)
+            f.close()
+        
+        # close the class once done
+        await bmkg.close()
+        ```
+Keywords: Weather,BMKG,Indonesia,API,API Wrapper,Wrapper
+Platform: UNKNOWN
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Software Development :: Build Tools
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Requires-Python: >=3.7
+Description-Content-Type: text/markdown
