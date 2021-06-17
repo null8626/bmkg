@@ -4,9 +4,14 @@ from .weather import Weather
 from .constants import PROVINCES
 from .earthquake import Earthquake, EarthquakeFelt, TsunamiEarthquake
 from datetime import datetime
+from typing import List
+
+version = '0.0.3'
 
 class BMKG:
-    def __repr__(self):
+    __slots__ = ('english', 'metric', 'session', 'base_url', '_day', '_image_cache')
+
+    def __repr__(self) -> str:
         return f"<BMKG english={self.english} metric={self.metric}>"
 
     def __init__(self, english: bool = False, metric: bool = True, session = None, session_settings: dict = {}) -> None:
@@ -21,11 +26,13 @@ class BMKG:
         self._day = self._current_day()
         self._image_cache = {}
     
-    def _current_day(self):
+    def _current_day(self) -> str:
+        """ Formats the current day. """
         current = datetime.now()
         return f"{current.year}{current.month}{current.day}"
     
-    async def get_forecast(self, location: str = None):
+    async def get_forecast(self, location: str = None) -> "Weather":
+        """ Fetches the forecast for a specific location. """
         if not location:
             return await self._handle_request(PROVINCES["indonesia"])
         
@@ -38,7 +45,8 @@ class BMKG:
                 return await self._handle_request(PROVINCES[province])
         return await self._handle_request(PROVINCES["indonesia"])
 
-    async def get_climate_info(self):
+    async def get_climate_info(self) -> bytes:
+        """ Fetches the climate information image. """
         if self._image_cache.get("climate_info") and (self._current_day() == self._day):
             return self._image_cache["climate_info"]
         
@@ -47,7 +55,8 @@ class BMKG:
         self._image_cache["climate_info"] = byte
         return byte
     
-    async def get_satellite_image(self):
+    async def get_satellite_image(self) -> bytes:
+        """ Fetches the satellite image. """
         if self._image_cache.get("satellite") and (self._current_day() == self._day):
             return self._image_cache["satellite"]
         
@@ -56,7 +65,8 @@ class BMKG:
         self._image_cache["satellite"] = byte
         return byte
     
-    async def get_wave_height_forecast(self):
+    async def get_wave_height_forecast(self) -> bytes:
+        """ Fetches the wave height forecast image. """
         if self._image_cache.get("wave_height") and (self._current_day() == self._day):
             return self._image_cache["wave_height"]
         
@@ -65,7 +75,8 @@ class BMKG:
         self._image_cache["wave_height"] = byte
         return byte
 
-    async def get_wind_forecast(self):
+    async def get_wind_forecast(self) -> bytes:
+        """ Fetches the wind forecast. """
         if self._image_cache.get("wind_forecast") and (self._current_day() == self._day):
             return self._image_cache["wind_forecast"]
         
@@ -74,7 +85,8 @@ class BMKG:
         self._image_cache["wind_forecast"] = byte
         return byte
     
-    async def get_forest_fires(self):
+    async def get_forest_fires(self) -> bytes:
+        """ Fetches the current forest fires. """
         if self._image_cache.get("forest_fires") and (self._current_day() == self._day):
             return self._image_cache["forest_fires"]
         
@@ -83,7 +95,8 @@ class BMKG:
         self._image_cache["forest_fires"] = byte
         return byte
     
-    async def get_recent_earthquake_map(self):
+    async def get_recent_earthquake_map(self) -> bytes:
+        """ Fetches the recent earthquakes map. """
         if self._image_cache.get("latest_earthquake") and (self._current_day() == self._day):
             return self._image_cache["latest_earthquake"]
         
@@ -92,17 +105,20 @@ class BMKG:
         self._image_cache["latest_earthquake"] = byte
         return byte
 
-    async def get_recent_earthquake(self):
+    async def get_recent_earthquake(self) -> "Earthquake":
+        """ Fetches the recent earthquake """
         response = await self.session.get("https://data.bmkg.go.id/gempaterkini.xml")
         text = await response.text()
         return Earthquake(text, metric=self.metric)
     
-    async def get_recent_tsunami(self):
+    async def get_recent_tsunami(self) -> "TsunamiEarthquake":
+        """ Fetches the recent tsunami. """
         response = await self.session.get("https://data.bmkg.go.id/lasttsunami.xml")
         text = await response.text()
         return TsunamiEarthquake(text, metric=self.metric)
     
-    async def get_earthquakes_felt(self):
+    async def get_earthquakes_felt(self) -> List[EarthquakeFelt]:
+        """ Fetches the recent earthquakes felt. """
         response = await self.session.get("https://data.bmkg.go.id/gempadirasakan.xml")
         text = await response.text()
         result = parse(text)["Infogempa"]
@@ -112,7 +128,8 @@ class BMKG:
             earthquakes.append(EarthquakeFelt(earthquake, metric=self.metric))
         return earthquakes
 
-    async def get_recent_earthquakes(self):
+    async def get_recent_earthquakes(self) -> List[Earthquake]:
+        """ Fetches the recent earthquakes. """
         response = await self.session.get("https://data.bmkg.go.id/gempaterkini.xml")
         text = await response.text()
         result = parse(text)["Infogempa"]
@@ -122,17 +139,27 @@ class BMKG:
             earthquakes.append(Earthquake(earthquake, as_list_element=True, metric=self.metric))
         return earthquakes
 
-    async def _handle_request(self, xml_path: str):
+    async def _handle_request(self, xml_path: str) -> "Weather":
+        """ Handles a request. """
         response = await self.session.get(self.base_url + xml_path)
         text = await response.text()
         return Weather(text, english=self.english, metric=self.metric)
     
-    async def close(self):
+    @property
+    def closed(self) -> bool:
+        """ Returns if the client is closed or not. """
+        return self.session.closed
+
+    async def close(self) -> None:
+        """ Closes the session and clears out the cache. """
+        if self.closed:
+            return
+        
         await self.session.close()
+
         del (
             self._day,
             self.base_url,
-            self.session,
             self.english,
             self.metric,
             self._image_cache

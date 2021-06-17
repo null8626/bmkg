@@ -3,22 +3,29 @@ from datetime import datetime
 from .area import Area
 
 class Weather:
-    def __init__(self, response, **settings):
+    __slots__ = ('source', 'production_center', 'areas', 'date')
+
+    def __init__(self, response: str, **settings):
         json = parse(response)["data"]
+        issue = json["forecast"]["issue"]
+
         self.source = json["@source"]
         self.production_center = json["@productioncenter"]
         self.areas = []
         self.date = datetime(
-            int(json["forecast"]["issue"]["year"]),
-            int(json["forecast"]["issue"]["month"]),
-            int(json["forecast"]["issue"]["day"]),
-            int(json["forecast"]["issue"]["hour"]),
-            int(json["forecast"]["issue"]["minute"]),
-            int(json["forecast"]["issue"]["second"])
+            int(issue["year"]),
+            int(issue["month"]),
+            int(issue["day"]),
+            int(issue["hour"]),
+            int(issue["minute"]),
+            int(issue["second"])
         )
         
         for area in json["forecast"]["area"]:
             self.areas.append(Area(area, **settings))
     
-    def __repr__(self):
-        return f"<Weather date={repr(self.date)} areas=[{len(self.areas)}]>"
+    def __len__(self) -> int:
+        return len(self.areas)
+
+    def __repr__(self) -> str:
+        return f"<Weather date={self.date!r} areas=[{len(self)}]>"
