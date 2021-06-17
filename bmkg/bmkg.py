@@ -6,7 +6,7 @@ from .earthquake import Earthquake, EarthquakeFelt, TsunamiEarthquake
 from datetime import datetime
 from typing import List
 
-version = '0.0.3'
+version = '0.0.4'
 
 class BMKG:
     __slots__ = ('english', 'metric', 'session', 'base_url', '_day', '_image_cache')
