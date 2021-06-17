@@ -15,8 +15,7 @@ setup(
   keywords=['Weather', 'BMKG', 'Indonesia', 'API', 'API Wrapper', 'Wrapper'],
   install_requires=[
     'aiohttp',
-    'xmltodict',
-    'halo'
+    'xmltodict'
   ],
   classifiers=[
     'Development Status :: 4 - Beta',
