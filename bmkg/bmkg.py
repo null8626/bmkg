@@ -1,121 +1,85 @@
-import aiohttp
-from xmltodict import parse
 from .weather import Weather
 from .constants import PROVINCES
 from .earthquake import Earthquake, EarthquakeFelt, TsunamiEarthquake
+
+from collections import namedtuple
+from aiohttp import ClientSession
 from datetime import datetime
+from xmltodict import parse
 from typing import List
 
-version = '0.0.4'
+BMKGSettings = namedtuple("BMKGSettings", "english metric")
 
 class BMKG:
-    __slots__ = ('english', 'metric', 'session', 'base_url', '_day', '_image_cache')
+    __slots__ = ('__settings', 'session')
 
     def __repr__(self) -> str:
-        return f"<BMKG english={self.english} metric={self.metric}>"
+        return f"<BNKG [closed]>" if self.session.closed else f"<BMKG english={self.english} metric={self.metric}>"
 
-    def __init__(self, english: bool = False, metric: bool = True, session = None, session_settings: dict = {}) -> None:
+    def __init__(self, english: bool = False, metric: bool = True, session: "ClientSession" = None) -> None:
         """
         BMKG wrapper for Python.
         """
         
-        self.english = bool(english)
-        self.metric = bool(metric)
-        self.session = session or aiohttp.ClientSession(**session_settings)
-        self.base_url = "https://data.bmkg.go.id/datamkg/MEWS/DigitalForecast/"
-        self._day = self._current_day()
-        self._image_cache = {}
-    
-    def _current_day(self) -> str:
-        """ Formats the current day. """
-        current = datetime.now()
-        return f"{current.year}{current.month}{current.day}"
-    
+        self.__settings = BMKGSettings(english, metric)
+        self.session = session or ClientSession()
+
     async def get_forecast(self, location: str = None) -> "Weather":
         """ Fetches the forecast for a specific location. """
         if not location:
             return await self._handle_request(PROVINCES["indonesia"])
         
-        location = str(location).lower().replace(" ", "_").replace("di", "dki").replace("jogja", "yogya").lstrip("provinsi ")
-        if location in PROVINCES.keys():
+        location = location.lower().replace(" ", "_").replace("di", "dki").replace("jogja", "yogya").lstrip("provinsi ")
+        if location in PROVINCES:
             return await self._handle_request(PROVINCES[location])
         
-        for province in PROVINCES.keys():
+        for province in PROVINCES:
             if location in province:
                 return await self._handle_request(PROVINCES[province])
+        
         return await self._handle_request(PROVINCES["indonesia"])
 
     async def get_climate_info(self) -> bytes:
         """ Fetches the climate information image. """
-        if self._image_cache.get("climate_info") and (self._current_day() == self._day):
-            return self._image_cache["climate_info"]
-        
         response = await self.session.get("https://cdn.bmkg.go.id/DataMKG/CEWS/pch/pch.bulan.1.cond1.png")
-        byte = await response.read()
-        self._image_cache["climate_info"] = byte
-        return byte
+        return await response.read()
     
     async def get_satellite_image(self) -> bytes:
         """ Fetches the satellite image. """
-        if self._image_cache.get("satellite") and (self._current_day() == self._day):
-            return self._image_cache["satellite"]
-        
         response = await self.session.get("https://inderaja.bmkg.go.id/IMAGE/HIMA/H08_EH_Indonesia.png")
-        byte = await response.read()
-        self._image_cache["satellite"] = byte
-        return byte
+        return await response.read()
     
     async def get_wave_height_forecast(self) -> bytes:
         """ Fetches the wave height forecast image. """
-        if self._image_cache.get("wave_height") and (self._current_day() == self._day):
-            return self._image_cache["wave_height"]
-        
         response = await self.session.get("https://cdn.bmkg.go.id/DataMKG/MEWS/maritim/gelombang_maritim.png")
-        byte = await response.read()
-        self._image_cache["wave_height"] = byte
-        return byte
+        return await response.read()
 
     async def get_wind_forecast(self) -> bytes:
         """ Fetches the wind forecast. """
-        if self._image_cache.get("wind_forecast") and (self._current_day() == self._day):
-            return self._image_cache["wind_forecast"]
-        
         response = await self.session.get("https://cdn.bmkg.go.id/DataMKG/MEWS/angin/streamline_d1.jpg")
-        byte = await response.read()
-        self._image_cache["wind_forecast"] = byte
-        return byte
+        return await response.read()
     
     async def get_forest_fires(self) -> bytes:
         """ Fetches the current forest fires. """
-        if self._image_cache.get("forest_fires") and (self._current_day() == self._day):
-            return self._image_cache["forest_fires"]
-        
         response = await self.session.get("https://cdn.bmkg.go.id/DataMKG/MEWS/spartan/36_indonesia_ffmc_01.png")
-        byte = await response.read()
-        self._image_cache["forest_fires"] = byte
-        return byte
+        return await response.read()
     
     async def get_recent_earthquake_map(self) -> bytes:
         """ Fetches the recent earthquakes map. """
-        if self._image_cache.get("latest_earthquake") and (self._current_day() == self._day):
-            return self._image_cache["latest_earthquake"]
-        
         response = await self.session.get("https://data.bmkg.go.id/eqmap.gif")
-        byte = await response.read()
-        self._image_cache["latest_earthquake"] = byte
-        return byte
+        return await response.read()
 
     async def get_recent_earthquake(self) -> "Earthquake":
         """ Fetches the recent earthquake """
         response = await self.session.get("https://data.bmkg.go.id/gempaterkini.xml")
         text = await response.text()
-        return Earthquake(text, metric=self.metric)
+        return Earthquake(text, self.__settings)
     
     async def get_recent_tsunami(self) -> "TsunamiEarthquake":
         """ Fetches the recent tsunami. """
         response = await self.session.get("https://data.bmkg.go.id/lasttsunami.xml")
         text = await response.text()
-        return TsunamiEarthquake(text, metric=self.metric)
+        return TsunamiEarthquake(text, self.__settings)
     
     async def get_earthquakes_felt(self) -> List[EarthquakeFelt]:
         """ Fetches the recent earthquakes felt. """
@@ -141,26 +105,13 @@ class BMKG:
 
     async def _handle_request(self, xml_path: str) -> "Weather":
         """ Handles a request. """
-        response = await self.session.get(self.base_url + xml_path)
+        response = await self.session.get(f"https://data.bmkg.go.id/datamkg/MEWS/DigitalForecast/DigitalForecast-{xml_path}.xml")
         text = await response.text()
         return Weather(text, english=self.english, metric=self.metric)
     
-    @property
-    def closed(self) -> bool:
-        """ Returns if the client is closed or not. """
-        return self.session.closed
-
     async def close(self) -> None:
-        """ Closes the session and clears out the cache. """
-        if self.closed:
+        """ Closes the session. """
+        if self.session.closed:
             return
         
         await self.session.close()
-
-        del (
-            self._day,
-            self.base_url,
-            self.english,
-            self.metric,
-            self._image_cache
-        )

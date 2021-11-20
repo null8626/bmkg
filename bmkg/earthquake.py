@@ -1,61 +1,142 @@
 from datetime import datetime, timedelta, timezone
-from xmltodict import parse
 from .constants import TIMEZONE_OFFSETS, DIRECTION
+from collections import namedtuple
+from xmltodict import parse
+from typing import List
+
+EarthquakeLocation = namedtuple("EarthquakeLocation", "length direction location")
 
 class TsunamiEarthquake:
-    __slots__ = ('date', 'timezone', 'depth', 'magnitude', 'location', 'url')
+    __slots__ = ('__data', '__div')
 
-    def __init__(self, data, **settings):
-        data = parse(data)["Infotsunami"]["Gempa"]
-        date = "-".join(data["Tanggal"].split("-")[:-1]) + ("20" + data["Tanggal"].split("-")[2])
-        self.date = datetime.strptime(date + data["Jam"].split()[0], "%d-%b%Y%H:%M:%S") - timedelta(hours=TIMEZONE_OFFSETS[data["Jam"].split()[1]])
-        self.timezone = timezone(timedelta(hours=TIMEZONE_OFFSETS[data["Jam"].split()[1]]))
+    def __init__(self, data, settings):
+        self.__data = parse(data)["Infotsunami"]["Gempa"]
+        self.__div = 1 if settings.metric else 1.609
+    
+    @property
+    def date(self) -> "datetime":
+        date = "-".join(self.__data["Tanggal"].split("-")[:-1]) + ("20" + self.__data["Tanggal"].split("-")[2])
+        a = self.__data["Jam"].split()[0]
         
-        self.depth = float(data["Kedalaman"].split()[0]) // (1 if settings["metric"] else 1.609)
-        self.magnitude = float(data["Magnitude"].split()[0])
-        self.location = {
-            "length": float(data["Area"].split()[0]) // (1 if settings["metric"] else 1.609),
-            "direction": DIRECTION[data["Area"].split()[2]],
-            "location": data["Area"].split()[-1]
-        }
+        return datetime.strptime(date + a, "%d-%b%Y%H:%M:%S") - self.timezone
+        
+    @property
+    def timezone(self) -> "timedelta":
+        return timedelta(hours=TIMEZONE_OFFSETS.index(self.__data["Jam"].split()[1]) + 7)
+    
+    @property
+    def depth(self) -> float:
+        return float(self.__data["Kedalaman"].split()[0]) // self.__div
+    
+    @property
+    def magnitude(self) -> float:
+        return float(self.__data["Magnitude"].split()[0])
+        
+    @property
+    def location(self) -> "EarthquakeLocation":
+        area = self.__data["Area"].split()
+    
+        return EarthquakeLocation(
+            float(area[0]) // self.__div,
+            DIRECTION[area[2]],
+            area[-1]
+        )
+   
+    @property
+    def url(self) -> str:
         self.url = data["Linkdetail"]
     
     def __repr__(self):
         return f"<TsunamiEarthquake magnitude={self.magnitude} depth={self.depth} date={repr(self.date)}>"
 
 class EarthquakeFelt:
-    def __init__(self, data: dict, **settings):
-        self.latitude    = float(data["point"]["coordinates"].split(", ")[0])
-        self.longitude   = float(data["point"]["coordinates"].split(", ")[1])
-        self.magnitude   = float(data["Magnitude"])
-        self.depth       = float(data["Kedalaman"].split()[0]) // (1 if settings["metric"] else 1.609)
-        self.description = data.get("Keterangan")
-        self.felt_at     = data["Dirasakan"].lstrip(" ").rstrip(",").split(", ")
-        self.date        = datetime.strptime(data["Tanggal"].split()[0], "%d/%m/%Y-%H:%M:%S") - timedelta(hours=TIMEZONE_OFFSETS[data["Tanggal"].split()[1]])
-        self.timezone    = timezone(timedelta(hours=TIMEZONE_OFFSETS[data["Tanggal"].split()[1]]))
+    __slots__ = ("__data", "__settings")
+
+    def __init__(self, data: dict, settings):
+        self.__data = data
+        self.__div = 1 if settings.metric else 1.609
+    
+    @property
+    def latitude(self) -> float:
+        return float(self.__data["point"]["coordinates"].split(", ")[0])
+    
+    @property
+    def longitude(self) -> float:
+        return float(self.__data["point"]["coordinates"].split(", ")[1])
+    
+    @property
+    def magnitude(self) -> float:
+        return float(self.__data["Magnitude"])
+    
+    @property
+    def depth(self) -> float:
+        return float(self.__data["Kedalaman"].split()[0]) // ()
+    
+    @property
+    def description(self) -> str:
+        return self.__data.get("Keterangan")
+    
+    @property
+    def felt_at(self) -> tuple:
+        return tuple(self.__data["Dirasakan"].lstrip(" ").rstrip(",").split(", "))
+    
+    @property
+    def date(self) -> "datetime":
+        return datetime.strptime(self.__data["Tanggal"].split()[0], "%d/%m/%Y-%H:%M:%S") - self.timezone
+    
+    @property
+    def timezone(self) -> "timedelta":
+        return timedelta(hours=TIMEZONE_OFFSETS.index(self.__data["Tanggal"].split()[1]) + 7)
     
     def __repr__(self):
         return f"<EarthquakeFelt latitude={self.latitude} longitude={self.longitude} depth={self.depth} description={self.description}>"
 
 class Earthquake:
-    __slots__ = ('latitude', 'longitude', 'magnitude', 'depth', 'tsunami', 'date', 'timezone', 'locations')
+    __slots__ = ('__data', '__div')
 
-    def __init__(self, data: "str | dict", as_list_element: bool = False, **settings):
-        data = data if as_list_element else parse(data)["Infogempa"]["gempa"][0]
-        self.latitude = float(data["point"]["coordinates"].split(",")[0])
-        self.longitude = float(data["point"]["coordinates"].split(",")[1])
-        self.magnitude = float(data["Magnitude"].split()[0])
-        self.depth = float(data["Kedalaman"].split()[0]) // (1 if settings["metric"] else 1.609)
-        self.tsunami = (data["Potensi"][:5] != "tidak") if data.get("Potensi") else None
+    def __init__(self, data: "str | dict", as_list_element: bool = False, settings = None):
+        self.__data = data if as_list_element else parse(data)["Infogempa"]["gempa"][0]
+        self.__div  = 1.0 if settings.metric else 1.609
+    
+    @property
+    def latitude(self) -> float:
+        return float(self.__data["point"]["coordinates"].split(",")[0])
+    
+    @property
+    def longitude(self) -> float:
+        return float(self.__data["point"]["coordinates"].split(",")[1])
+    
+    @property
+    def magnitude(self) -> float:
+        return float(self.__data["Magnitude"].split()[0])
+    
+    @property
+    def depth(self) -> float:
+        return float(self.__data["Kedalaman"].split()[0]) // self.__div
+    
+    @property
+    def tsunami(self) -> bool:
+        return "tidak" in self.__data.get("Potensi", "").lower()
         
-        date = "-".join(data["Tanggal"].split("-")[:-1]) + ("20" + data["Tanggal"].split("-")[2])
-        self.date = datetime.strptime(date + data["Jam"].split()[0], "%d-%b%Y%H:%M:%S") - timedelta(hours=TIMEZONE_OFFSETS[data["Jam"].split()[1]])
-        self.timezone = timezone(timedelta(hours=TIMEZONE_OFFSETS[data["Jam"].split()[1]]))
-        self.locations = [{
-            "length": int(data[i].split()[0]) // (1 if settings["metric"] else 1.609),
-            "direction": DIRECTION[data[i].split()[2]],
-            "location": data[i].split()[-1]
-        } for i in filter(lambda x: x[:7] == "Wilayah", data.keys())]
+    @property
+    def date(self) -> bool:
+        t = self.__data["Tanggal"].split("-")
+        date = "-".join(t[:-1]) + "20" + t[2]
+        return datetime.strptime(date + self.__data["Jam"].split()[0], "%d-%b%Y%H:%M:%S") - self.timezone
+    
+    @property
+    def timezone(self) -> "timezone":
+        return timedelta(hours=TIMEZONE_OFFSETS.index(self.__data["Jam"].split()[1]) + 7)
+    
+    @property
+    def locations(self) -> List[EarthquakeLocation]:
+        map_list = map(str.split, filter(lambda x: x[:7] == "Wilayah", self.__data.keys()))
+    
+        return tuple(map(lambda x: EarthquakeLocation(
+            int(x[0]) // self.__div,
+            DIRECTION[x[2]],
+            x[-1]
+        ), map_list))
     
     def __repr__(self) -> str:
         return f"<Earthquake magnitude={self.magnitude} depth={self.depth} tsunami={self.tsunami} locations=[{len(self.locations)}]>"

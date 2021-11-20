@@ -1,9 +1,9 @@
-from bmkg import version
 from setuptools import setup
+
 setup(
   name='bmkg',
   packages=['bmkg'],
-  version=version,
+  version='0.1.0',
   license='MIT',
   description='Unofficial BMKG API Python Wrapper.',
   long_description=open('README.md', 'r', encoding='utf-8').read(),
@@ -11,7 +11,7 @@ setup(
   author='vierofernando',
   author_email='vierofernando9@gmail.com',
   url='https://github.com/vierofernando/bmkg',
-  download_url=f'https://github.com/vierofernando/bmkg/archive/{version}.tar.gz',
+  download_url='https://github.com/vierofernando/bmkg/archive/0.1.0.tar.gz',
   keywords=['Weather', 'BMKG', 'Indonesia', 'API', 'API Wrapper', 'Wrapper'],
   install_requires=[
     'aiohttp',

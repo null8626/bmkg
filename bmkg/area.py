@@ -1,98 +1,133 @@
 from datetime import datetime
+from re import compile
+from collections import namedtuple
 from .constants import WEATHER_CODE, WIND_DIRECTION_CODE
+from typing import List
+
+date_regex = compile(r"^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})$")
+AreaHumidity = namedtuple("AreaHumidity", "date value unit")
+AreaTemperature = namedtuple("AreaTemperature", "date value")
+AreaWindSpeeds = namedtuple("AreaWindSpeeds", "date value ms knots")
+AreaWindDirection = namedtuple("AreaWindDirection", "date value text sexa")
+AreaForecast = namedtuple("AreaForecast", "date value icon_url")
 
 class Area:
-    __slots__ = (
-        '_metric', 'id', 'name', 'latitude', 'longitude', 'type', 'level',
-        'humidity_type', 'url', 'humidity', 'max_humidity', 'min_humidity',
-        'max_temperature', 'min_temperature', 'temperature', 'wind_speeds',
-        'wind_direction', 'forecast'
-    )
+    __slots__ = ('__settings', '__data')
 
     def __repr__(self) -> str:
         return f"<Area id={self.id} name={self.name} latitude={self.latitude} longitude={self.longitude}>"
 
-    def __init__(self, data, **settings):
-        self._metric = bool(settings.get("metric"))
-        self.id = int(data["@id"])
-        self.name = data["name"][int(not settings.get("english"))]["#text"]
-        self.latitude = float(data["@latitude"])
-        self.longitude = float(data["@longitude"])
-        self.type = data["@type"]
-        self.level = int(data["@level"])
-        self.humidity_type = data["parameter"][0]["timerange"][0]["@type"]
-        self.url = f"https://www.bmkg.go.id/cuaca/prakiraan-cuaca.bmkg?AreaID={self.id}"
+    def __init__(self, data, settings):
+        self.__settings = settings
+        self.__data = data
         
-        self.humidity = list(map(self._parse_humidity, data["parameter"][0]["timerange"]))
-        self.max_humidity = list(map(self._parse_humidity, data["parameter"][1]["timerange"]))
-        self.min_humidity = list(map(self._parse_humidity, data["parameter"][3]["timerange"]))
+    @property
+    def id(self) -> int:
+        return int(self.__data["@id"])
     
-        self.max_temperature = list(map(self._parse_temperature, data["parameter"][2]["timerange"]))
-        self.min_temperature = list(map(self._parse_temperature, data["parameter"][4]["timerange"]))
-        self.temperature = list(map(self._parse_temperature, data["parameter"][5]["timerange"]))
+    @property
+    def name(self) -> str:
+        return self.__data["name"][int(not self.__settings.english)]["#text"]
+    
+    @property
+    def latitude(self) -> float:
+        return float(self.__data["@latitude"])
+    
+    @property
+    def longitude(self) -> float:
+        return float(self.__data["@longitude"])
         
-        self.wind_speeds = list(map(lambda x: {
-            "datetime": datetime(
-                int(x["@datetime"][:4]),
-                int(x["@datetime"][4:6]),
-                int(x["@datetime"][6:8]),
-                int(x["@datetime"][8:10]),
-                int(x["@datetime"][10:])
-            ),
-            "value": float(x["value"][int(self._metric) + 1]["#text"]),
-            "ms": float(x["value"][3]["#text"]),
-            "knots": float(x["value"][0]["#text"])
-        }, data["parameter"][8]["timerange"]))
+    @property
+    def type(self) -> str:
+        return self.__data["@type"]
     
-        self.wind_direction = list(map(lambda x: {
-            "datetime": datetime(
-                int(x["@datetime"][:4]),
-                int(x["@datetime"][4:6]),
-                int(x["@datetime"][6:8]),
-                int(x["@datetime"][8:10]),
-                int(x["@datetime"][10:])
-            ),
-            "value": float(x["value"][0]["#text"]),
-            "text": WIND_DIRECTION_CODE[x["value"][1]["#text"]],
-            "sexa": float(x["value"][2]["#text"])
-        }, data["parameter"][7]["timerange"]))
+    @property
+    def level(self) -> int:
+        return int(self.__data["@level"])
     
-        self.forecast = list(map(lambda x: {
-            "datetime": datetime(
-                int(x["@datetime"][:4]),
-                int(x["@datetime"][4:6]),
-                int(x["@datetime"][6:8]),
-                int(x["@datetime"][8:10]),
-                int(x["@datetime"][10:])
-            ),
-            "value": WEATHER_CODE[x["value"]["#text"]][0],
-            "icon_url": WEATHER_CODE[x["value"]["#text"]][1].format("am" if int(x["@datetime"][8:10]) < 12 else "pm")
-        }, data["parameter"][6]["timerange"]))
+    @property
+    def humidity_type(self) -> str:
+        return self.__data["parameter"][0]["timerange"][0]["@type"]
     
-    def _parse_temperature(self, data: dict) -> dict:
-        return {
-            "datetime": datetime(
-                int(data["@datetime"][:4]),
-                int(data["@datetime"][4:6]),
-                int(data["@datetime"][6:8]),
-                int(data["@datetime"][8:10]),
-                int(data["@datetime"][10:])
-            ),
-            "value": float(data["value"][int(not self._metric)]["#text"])
-        }
+    @property
+    def url(self) -> str:
+        return f"https://www.bmkg.go.id/cuaca/prakiraan-cuaca.bmkg?AreaID={self.id}"
     
-    def _parse_humidity(self, data: dict) -> dict:
-        return {
-            "datetime": datetime(
-                int(data["@datetime"][:4]),
-                int(data["@datetime"][4:6]),
-                int(data["@datetime"][6:8]),
-                int(data["@datetime"][8:10]),
-                int(data["@datetime"][10:])
-            ),
-            "value": int(data["value"]["#text"]),
-            "unit": data["value"]["@unit"]
-        }
+    @property    
+    def humidity(self) -> List[AreaHumidity]:
+        return tuple(map(self._parse_humidity, self.__data["parameter"][0]["timerange"]))
+    
+    @property
+    def max_humidity(self) -> List[AreaHumidity]:
+        return tuple(map(self._parse_humidity, self.__data["parameter"][1]["timerange"]))
+    
+    @property
+    def min_humidity(self) -> List[AreaHumidity]:
+        return tuple(map(self._parse_humidity, self.__data["parameter"][3]["timerange"]))
+    
+    @property
+    def max_temperature(self) -> List[AreaTemperature]:
+        return tuple(map(self._parse_temperature, self.__data["parameter"][2]["timerange"]))
+    
+    @property
+    def min_temperature(self) -> List[AreaTemperature]:
+        return tuple(map(self._parse_temperature, self.__data["parameter"][4]["timerange"]))
+    
+    @property
+    def temperature(self) -> List[AreaTemperature]:
+        return tuple(map(self._parse_temperature, self.__data["parameter"][5]["timerange"]))
+
+    @property
+    def wind_speeds(self) -> List[AreaWindSpeeds]:
+        return tuple(map(self._parse_wind_speeds, self.__data["parameter"][8]["timerange"]))
+    
+    @property
+    def wind_direction(self) -> List[AreaWindDirection]:
+        return tuple(map(self._parse_wind_direction, self.__data["parameter"][7]["timerange"]))
+    
+    @property
+    def forecast(self) -> List[AreaForecast]:
+        return tuple(map(self._parse_forecast, self.__data["parameter"][6]["timerange"]))
+    
+    def _parse_forecast(self, data: dict) -> "AreaForecast":
+        date = datetime(*map(int, date_regex.findall(data["@datetime"])[1]))
+        a, b = WEATHER_CODE[date["value"]["#text"]]
+    
+        return AreaForecast(
+            date, a, f"https://www.bmkg.go.id/asset/img/icon-cuaca/{b}-{'am' if date.hour < 12 else 'pm'}.png"
+        )
+    
+    def _parse_wind_direction(self, data: dict) -> "AreaWindDirection":
+        val = self.data["value"]
+        return AreaWindDirection(
+            datetime(*map(int, date_regex.findall(data["@datetime"])[1])),
+            float(val[0]["#text"]),
+            WIND_DIRECTION_CODE[val[1]["#text"]],
+            float(val[2]["#text"])
+        )
+    
+    def _parse_temperature(self, data: dict) -> "AreaTemperature":
+        return AreaTemperature(
+            datetime(*map(int, date_regex.findall(data["@datetime"])[1])),
+            float(data["value"][int(not self.__settings.metric)]["#text"])
+        )
+    
+    def _parse_humidity(self, data: dict) -> "AreaHumidity":
+        return AreaHumidity(
+            datetime(*map(int, date_regex.findall(data["@datetime"])[1])),
+            int(data["value"]["#text"]),
+            data["value"]["@unit"]
+        )
+    
+    def _parse_wind_speeds(self, data: dict) -> "AreaWindSpeeds":
+        val = data["value"]
+        
+        return AreaWindSpeeds(
+            datetime(*map(int, date_regex.findall(data["@datetime"])[1])),
+            float(val[int(self.__settings.metric) + 1]["#text"]),
+            float(val[3]["#text"]),
+            float(val[0]["#text"])
+        )
     
     def __int__(self) -> int:
         """ Returns the area ID. """

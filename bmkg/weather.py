@@ -3,16 +3,29 @@ from datetime import datetime
 from .area import Area
 
 class Weather:
-    __slots__ = ('source', 'production_center', 'areas', 'date')
+    __slots__ = ('__json', '__settings')
 
     def __init__(self, response: str, **settings):
-        json = parse(response)["data"]
-        issue = json["forecast"]["issue"]
-
-        self.source = json["@source"]
-        self.production_center = json["@productioncenter"]
-        self.areas = []
-        self.date = datetime(
+        self.__json = parse(response)["data"]
+        self.__settings = settings
+    
+    @property
+    def areas(self) -> tuple:
+        return tuple(map(lambda x: Area(x, self.__settings), self.__json["forecast"]["area"]))
+    
+    @property
+    def production_center(self) -> str:
+        return self.__json["@productioncenter"]
+    
+    @property
+    def source(self) -> str:
+        return self.__json["@source"]
+    
+    @property
+    def date(self) -> "datetime":
+        issue = self.__json["forecast"]["issue"]
+        
+        return datetime(
             int(issue["year"]),
             int(issue["month"]),
             int(issue["day"]),
@@ -20,12 +33,9 @@ class Weather:
             int(issue["minute"]),
             int(issue["second"])
         )
-        
-        for area in json["forecast"]["area"]:
-            self.areas.append(Area(area, **settings))
     
     def __len__(self) -> int:
         return len(self.areas)
 
     def __repr__(self) -> str:
-        return f"<Weather date={self.date!r} areas=[{len(self)}]>"
+        return f"<Weather date={self.date!r} areas=[{len(self)!r}]>"
