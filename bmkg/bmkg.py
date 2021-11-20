@@ -14,7 +14,7 @@ class BMKG:
     __slots__ = ('__settings', 'session')
 
     def __repr__(self) -> str:
-        return f"<BNKG [closed]>" if self.session.closed else f"<BMKG english={self.english} metric={self.metric}>"
+        return f"<BNKG [closed]>" if self.session.closed else f"<BMKG english={self.__settings.english} metric={self.__settings.metric}>"
 
     def __init__(self, english: bool = False, metric: bool = True, session: "ClientSession" = None) -> None:
         """
@@ -89,7 +89,7 @@ class BMKG:
         earthquakes = []
         
         for earthquake in result["Gempa"]:
-            earthquakes.append(EarthquakeFelt(earthquake, metric=self.metric))
+            earthquakes.append(EarthquakeFelt(earthquake, self.__settings))
         return earthquakes
 
     async def get_recent_earthquakes(self) -> List[Earthquake]:
@@ -100,14 +100,14 @@ class BMKG:
         earthquakes = []
         
         for earthquake in result["gempa"]:
-            earthquakes.append(Earthquake(earthquake, as_list_element=True, metric=self.metric))
+            earthquakes.append(Earthquake(earthquake, as_list_element=True, self.__settings))
         return earthquakes
 
     async def _handle_request(self, xml_path: str) -> "Weather":
         """ Handles a request. """
         response = await self.session.get(f"https://data.bmkg.go.id/datamkg/MEWS/DigitalForecast/DigitalForecast-{xml_path}.xml")
         text = await response.text()
-        return Weather(text, english=self.english, metric=self.metric)
+        return Weather(text, self.__settings)
     
     async def close(self) -> None:
         """ Closes the session. """
