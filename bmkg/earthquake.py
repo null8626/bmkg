@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from .constants import TIMEZONE_OFFSETS, DIRECTION
 from collections import namedtuple
-from xmltodict import parse
 from typing import Tuple
 
 EarthquakeLocation = namedtuple("EarthquakeLocation", "length direction location")

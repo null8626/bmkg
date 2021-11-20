@@ -14,8 +14,7 @@ setup(
   download_url='https://github.com/vierofernando/bmkg/archive/0.1.0.tar.gz',
   keywords=['Weather', 'BMKG', 'Indonesia', 'API', 'API Wrapper', 'Wrapper'],
   install_requires=[
-    'aiohttp',
-    'xmltodict'
+    'aiohttp'
   ],
   classifiers=[
     'Development Status :: 4 - Beta',

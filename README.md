@@ -6,20 +6,16 @@ Unofficial Python wrapper for the [BMKG (Meteorology, Climatology, and Geophysic
 $ pip install bmkg
 ```
 
-## Usage
+## Importing
 ```py
 from bmkg import BMKG
+```
 
+## Usage
+P.S: wrap this example in an async function!
+```py
 # initiate the class
 bmkg = BMKG()
-
-# get indonesia's forecast
-weather = await bmkg.get_forecast()
-print(weather)
-
-# get specific province's forecast
-province_weather = await bmkg.get_forecast("aceh")
-print(province_weather)
 
 # get history of the latest earthquakes
 earthquakes = await bmkg.get_recent_earthquakes()
