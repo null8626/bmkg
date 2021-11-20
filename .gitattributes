@@ -1,2 +1,3 @@
 * text=auto
 *.py text eol=lf
+bmkg/*.py text eol=lf

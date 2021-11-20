@@ -2,55 +2,12 @@ from datetime import datetime, timedelta, timezone
 from .constants import TIMEZONE_OFFSETS, DIRECTION
 from collections import namedtuple
 from xmltodict import parse
-from typing import List
+from typing import Tuple
 
 EarthquakeLocation = namedtuple("EarthquakeLocation", "length direction location")
 
-class TsunamiEarthquake:
-    __slots__ = ('__data', '__div')
-
-    def __init__(self, data, settings):
-        self.__data = parse(data)["Infotsunami"]["Gempa"]
-        self.__div = 1 if settings.metric else 1.609
-    
-    @property
-    def date(self) -> "datetime":
-        date = "-".join(self.__data["Tanggal"].split("-")[:-1]) + ("20" + self.__data["Tanggal"].split("-")[2])
-        a = self.__data["Jam"].split()[0]
-        
-        return datetime.strptime(date + a, "%d-%b%Y%H:%M:%S") - self.timezone
-        
-    @property
-    def timezone(self) -> "timedelta":
-        return timedelta(hours=TIMEZONE_OFFSETS.index(self.__data["Jam"].split()[1]) + 7)
-    
-    @property
-    def depth(self) -> float:
-        return float(self.__data["Kedalaman"].split()[0]) // self.__div
-    
-    @property
-    def magnitude(self) -> float:
-        return float(self.__data["Magnitude"].split()[0])
-        
-    @property
-    def location(self) -> "EarthquakeLocation":
-        area = self.__data["Area"].split()
-    
-        return EarthquakeLocation(
-            float(area[0]) // self.__div,
-            DIRECTION[area[2]],
-            area[-1]
-        )
-   
-    @property
-    def url(self) -> str:
-        self.url = data["Linkdetail"]
-    
-    def __repr__(self):
-        return f"<TsunamiEarthquake magnitude={self.magnitude} depth={self.depth} date={repr(self.date)}>"
-
 class EarthquakeFelt:
-    __slots__ = ("__data", "__settings")
+    __slots__ = ("__data", "__div")
 
     def __init__(self, data: dict, settings):
         self.__data = data
@@ -94,8 +51,8 @@ class EarthquakeFelt:
 class Earthquake:
     __slots__ = ('__data', '__div')
 
-    def __init__(self, data: "str | dict", as_list_element: bool = False, settings = None):
-        self.__data = data if as_list_element else parse(data)["Infogempa"]["gempa"][0]
+    def __init__(self, data, as_list_element: bool = False, settings = None):
+        self.__data = data
         self.__div  = 1.0 if settings.metric else 1.609
     
     @property
@@ -129,7 +86,7 @@ class Earthquake:
         return timedelta(hours=TIMEZONE_OFFSETS.index(self.__data["Jam"].split()[1]) + 7)
     
     @property
-    def locations(self) -> List[EarthquakeLocation]:
+    def locations(self) -> Tuple[EarthquakeLocation]:
         map_list = map(str.split, filter(lambda x: x[:7] == "Wilayah", self.__data.keys()))
     
         return tuple(map(lambda x: EarthquakeLocation(

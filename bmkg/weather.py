@@ -5,7 +5,7 @@ from .area import Area
 class Weather:
     __slots__ = ('__json', '__settings')
 
-    def __init__(self, response: str, **settings):
+    def __init__(self, response: str, settings):
         self.__json = parse(response)["data"]
         self.__settings = settings
     

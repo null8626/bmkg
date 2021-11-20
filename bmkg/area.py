@@ -2,7 +2,7 @@ from datetime import datetime
 from re import compile
 from collections import namedtuple
 from .constants import WEATHER_CODE, WIND_DIRECTION_CODE
-from typing import List
+from typing import Tuple
 
 date_regex = compile(r"^(\d{4})(\d{2})(\d{2})(\d{2})(\d{2})$")
 AreaHumidity = namedtuple("AreaHumidity", "date value unit")
@@ -54,39 +54,39 @@ class Area:
         return f"https://www.bmkg.go.id/cuaca/prakiraan-cuaca.bmkg?AreaID={self.id}"
     
     @property    
-    def humidity(self) -> List[AreaHumidity]:
+    def humidity(self) -> Tuple[AreaHumidity]:
         return tuple(map(self._parse_humidity, self.__data["parameter"][0]["timerange"]))
     
     @property
-    def max_humidity(self) -> List[AreaHumidity]:
+    def max_humidity(self) -> Tuple[AreaHumidity]:
         return tuple(map(self._parse_humidity, self.__data["parameter"][1]["timerange"]))
     
     @property
-    def min_humidity(self) -> List[AreaHumidity]:
+    def min_humidity(self) -> Tuple[AreaHumidity]:
         return tuple(map(self._parse_humidity, self.__data["parameter"][3]["timerange"]))
     
     @property
-    def max_temperature(self) -> List[AreaTemperature]:
+    def max_temperature(self) -> Tuple[AreaTemperature]:
         return tuple(map(self._parse_temperature, self.__data["parameter"][2]["timerange"]))
     
     @property
-    def min_temperature(self) -> List[AreaTemperature]:
+    def min_temperature(self) -> Tuple[AreaTemperature]:
         return tuple(map(self._parse_temperature, self.__data["parameter"][4]["timerange"]))
     
     @property
-    def temperature(self) -> List[AreaTemperature]:
+    def temperature(self) -> Tuple[AreaTemperature]:
         return tuple(map(self._parse_temperature, self.__data["parameter"][5]["timerange"]))
 
     @property
-    def wind_speeds(self) -> List[AreaWindSpeeds]:
+    def wind_speeds(self) -> Tuple[AreaWindSpeeds]:
         return tuple(map(self._parse_wind_speeds, self.__data["parameter"][8]["timerange"]))
     
     @property
-    def wind_direction(self) -> List[AreaWindDirection]:
+    def wind_direction(self) -> Tuple[AreaWindDirection]:
         return tuple(map(self._parse_wind_direction, self.__data["parameter"][7]["timerange"]))
     
     @property
-    def forecast(self) -> List[AreaForecast]:
+    def forecast(self) -> Tuple[AreaForecast]:
         return tuple(map(self._parse_forecast, self.__data["parameter"][6]["timerange"]))
     
     def _parse_forecast(self, data: dict) -> "AreaForecast":

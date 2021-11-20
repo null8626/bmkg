@@ -1,12 +1,12 @@
 from .weather import Weather
 from .constants import PROVINCES
-from .earthquake import Earthquake, EarthquakeFelt, TsunamiEarthquake
+from .earthquake import Earthquake, EarthquakeFelt
 
 from collections import namedtuple
 from aiohttp import ClientSession
 from datetime import datetime
 from xmltodict import parse
-from typing import List
+from typing import Tuple
 
 BMKGSettings = namedtuple("BMKGSettings", "english metric")
 
@@ -69,43 +69,23 @@ class BMKG:
         response = await self.session.get("https://data.bmkg.go.id/eqmap.gif")
         return await response.read()
 
-    async def get_recent_earthquake(self) -> "Earthquake":
-        """ Fetches the recent earthquake """
-        response = await self.session.get("https://data.bmkg.go.id/gempaterkini.xml")
-        text = await response.text()
-        return Earthquake(text, self.__settings)
-    
-    async def get_recent_tsunami(self) -> "TsunamiEarthquake":
-        """ Fetches the recent tsunami. """
-        response = await self.session.get("https://data.bmkg.go.id/lasttsunami.xml")
-        text = await response.text()
-        return TsunamiEarthquake(text, self.__settings)
-    
-    async def get_earthquakes_felt(self) -> List[EarthquakeFelt]:
+    async def get_earthquakes_felt(self) -> Tuple[EarthquakeFelt]:
         """ Fetches the recent earthquakes felt. """
-        response = await self.session.get("https://data.bmkg.go.id/gempadirasakan.xml")
-        text = await response.text()
-        result = parse(text)["Infogempa"]
-        earthquakes = []
+        response = await self.session.get("https://data.bmkg.go.id/DataMKG/TEWS/gempadirasakan.json")
+        result = await response.json()
         
-        for earthquake in result["Gempa"]:
-            earthquakes.append(EarthquakeFelt(earthquake, self.__settings))
-        return earthquakes
+        return tuple(map(lambda earthquake: EarthquakeFelt(earthquake, settings=self.__settings), result["Infogempa"]["gempa"]))
 
-    async def get_recent_earthquakes(self) -> List[Earthquake]:
+    async def get_recent_earthquakes(self) -> Tuple[Earthquake]:
         """ Fetches the recent earthquakes. """
-        response = await self.session.get("https://data.bmkg.go.id/gempaterkini.xml")
-        text = await response.text()
-        result = parse(text)["Infogempa"]
-        earthquakes = []
+        response = await self.session.get("https://data.bmkg.go.id/DataMKG/TEWS/gempaterkini.json")
+        result = await response.json()
         
-        for earthquake in result["gempa"]:
-            earthquakes.append(Earthquake(earthquake, as_list_element=True, self.__settings))
-        return earthquakes
+        return tuple(map(lambda earthquake: Earthquake(earthquake, settings=self.__settings), result["Infogempa"]["gempa"]))
 
     async def _handle_request(self, xml_path: str) -> "Weather":
         """ Handles a request. """
-        response = await self.session.get(f"https://data.bmkg.go.id/datamkg/MEWS/DigitalForecast/DigitalForecast-{xml_path}.xml")
+        response = await self.session.get(f"https://data.bmkg.go.id/DataMKG/MEWS/DigitalForecast/DigitalForecast-{xml_path}.xml")
         text = await response.text()
         return Weather(text, self.__settings)
     
