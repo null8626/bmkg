@@ -11,26 +11,26 @@ DIRECTION = {
 
 TIMEZONE_OFFSETS = ( "WIB", "WITA", "WIT" )
 
-WIND_DIRECTION_CODE = {
-    "N": "North",
-    "NNE": "North-Northeast",
-    "NE": "Northeast",
-    "ENE": "East-Northeast",
-    "E": "East",
-    "ESE": "East-Southeast",
-    "SE": "Southeast",
-    "SSE": "South-Southeast",
-    "SSW": "South-Southwest",
-    "SW": "Southwest",
-    "WSW": "West-Southwest",
-    "W": "West",
-    "S": "South",
-    "WNW": "West-Northwest",
-    "NW": "Northwest",
-    "NNW": "North-Northwest",
-    "VARIABLE": "Fluctuate"
-}
-
+# WIND_DIRECTION_CODE = {
+#     "N": "North",
+#     "NNE": "North-Northeast",
+#     "NE": "Northeast",
+#     "ENE": "East-Northeast",
+#     "E": "East",
+#     "ESE": "East-Southeast",
+#     "SE": "Southeast",
+#     "SSE": "South-Southeast",
+#     "SSW": "South-Southwest",
+#     "SW": "Southwest",
+#     "WSW": "West-Southwest",
+#     "W": "West",
+#     "S": "South",
+#     "WNW": "West-Northwest",
+#     "NW": "Northwest",
+#     "NNW": "North-Northwest",
+#     "VARIABLE": "Fluctuate"
+# }
+# 
 # WEATHER_CODE = {
 #     "0":   ("Clear Skies", "cerah"),
 #     "1":   ("Partly Cloudy", "cerah%20berawan"),
