@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
   name='bmkg',
   packages=['bmkg'],
-  version='0.1.0',
+  version='0.1.1',
   license='MIT',
   description='Unofficial BMKG API Python Wrapper.',
   long_description=open('README.md', 'r', encoding='utf-8').read(),
@@ -26,5 +26,5 @@ setup(
     'Programming Language :: Python :: 3.8',
     'Programming Language :: Python :: 3.9'
   ],
-  python_requires='>=3.7',
+  python_requires='>=3.10',
 )

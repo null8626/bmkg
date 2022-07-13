@@ -14,8 +14,13 @@ from bmkg import BMKG
 ## Usage
 P.S: wrap this example in an async function!
 ```py
+from bmkg import Province
+
 # initiate the class
 bmkg = BMKG()
+
+forecast = await bmkg.get_forecast(Province.jawa_barat)
+print(forecast)
 
 # get history of the latest earthquakes
 earthquakes = await bmkg.get_recent_earthquakes()
