@@ -11,7 +11,7 @@ setup(
   author='null8626',
   author_email='vierofernando9@gmail.com',
   url='https://github.com/null8626/bmkg',
-  download_url='https://github.com/null8626/bmkg/archive/0.1.0.tar.gz',
+  download_url='https://github.com/null8626/bmkg/archive/0.1.1.tar.gz',
   keywords=['Weather', 'BMKG', 'Indonesia', 'API', 'API Wrapper', 'Wrapper'],
   install_requires=[
     'aiohttp',
