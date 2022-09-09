@@ -9,7 +9,6 @@ setup(
   long_description=open('README.md', 'r', encoding='utf-8').read(),
   long_description_content_type='text/markdown',
   author='null8626',
-  author_email='vierofernando9@gmail.com',
   url='https://github.com/null8626/bmkg',
   download_url='https://github.com/null8626/bmkg/archive/0.1.1.tar.gz',
   keywords=['Weather', 'BMKG', 'Indonesia', 'API', 'API Wrapper', 'Wrapper'],
