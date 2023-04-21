@@ -1,129 +1,115 @@
-from datetime import datetime, timedelta, timezone
-from enum import Enum
+"""
+The MIT License (MIT)
+Copyright (c) 2021-2023 null (https://github.com/null8626)
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the 'Software'), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
+
 from collections import namedtuple
+from datetime import datetime, timedelta, timezone
+from enum import auto
+from typing import Iterable
 
-from .settings import BMKGSettings
+from .base import CustomizableUnit
+from .constants import AFFECTED_REGION_REGEX, METRIC
+from .enums import MMI
 
-class Direction(Enum):
-  southwest = None
-  northwest = None
-  southeast = None
-  northeast = None
-  north = None
-  south = None
-  east = None
-  west = None
+AffectedRegion = namedtuple('AffectedRegion', 'mmi region')
 
-  def new(text: str):
-    match text:
-      case "BaratDaya":
-        return Direction.southwest
-      case "BaratLaut":
-        return Direction.northwest
-      case "Tenggara":
-        return Direction.southeast
-      case "TimurLaut":
-        return Direction.northeast
-      case "Utara":
-        return Direction.north
-      case "Selatan":
-        return Direction.south
-      case "Timur":
-        return Direction.east
-      case "Barat":
-        return Direction.west
+_TIMEZONE_OFFSET = {
+  "B": 7,
+  "A": 8,
+  "T": 9
+}
 
-def get_timezone_offset(name: str) -> int:
-  match name:
-    case "WIB":
-      return 7
-    case "WITA":
-      return 8
-    case "WIT":
-      return 9
+class RecentEarthquake(CustomizableUnit):
+  """Represents a recent earthquake with a magnitude >= 5.0."""
 
-EarthquakeLocation = namedtuple("EarthquakeLocation", "distance direction location")
-
-class EarthquakeFelt:
-  __slots__ = ("__data", "__date")
-
-  def __init__(self, data: dict):
-    self.__data = data
-    self.__date = data["Tanggal"].split()
-
-  @property
-  def latitude(self) -> str:
-    return self.__data["Lintang"]
+  __slots__ = ('__inner',)
   
-  @property
-  def longitude(self) -> str:
-    return self.__data["Bujur"]
-  
-  @property
-  def magnitude(self) -> float:
-    return float(self.__data["Magnitude"])
-  
-  @property
-  def depth(self) -> float:
-    return float(self.__data["Kedalaman"].split()[0])
-  
-  @property
-  def description(self) -> str:
-    return self.__data.get("Keterangan")
-  
-  @property
-  def felt_at(self) -> tuple:
-    return tuple(self.__data["Dirasakan"].lstrip(" ").rstrip(",").split(", "))
-  
-  @property
-  def date(self) -> datetime:
-    return datetime.strptime(self.__date[0], "%d/%m/%Y-%H:%M:%S") - self.timezone
-  
-  @property
-  def timezone(self) -> timedelta:
-    return timedelta(hours=get_timezone_offset(self.__date[1]))
-  
-  def __repr__(self) -> str:
-    return f"<EarthquakeFelt depth={self.depth} description={self.description}>"
-
-class Earthquake:
-  __slots__ = ('__data', '__div')
-
-  def __init__(self, data, settings: BMKGSettings):
-    self.__data = data
-    self.__div = 1.0 if settings.metric else 1.609
-  
-  @property
-  def magnitude(self) -> float:
-    return float(self.__data["Magnitude"].split()[0])
-  
-  @property
-  def depth(self) -> float:
-    return float(self.__data["Kedalaman"].split()[0]) // self.__div
-  
-  @property
-  def tsunami(self) -> bool:
-    return "tidak" not in self.__data.get("Potensi", "").lower()
+  def __init__(self, inner: dict, unit: auto, english: bool):
+    super().__init__(unit, english)
     
+    self.__inner = inner
+  
   @property
   def date(self) -> datetime:
-    t = self.__data["Tanggal"].split("-")
-    date = "-".join(t[:-1]) + "20" + t[2]
-    return datetime.strptime(date + self.__data["Jam"].split()[0], "%d-%b%Y%H:%M:%S") - self.timezone
+    """:class:`datetime`: The date when this earthquake happened in UTC."""
+    
+    return datetime.fromisoformat(self.__inner['DateTime'])
   
   @property
-  def timezone(self) -> timezone:
-    return timedelta(hours=get_timezone_offset(self.__data["Jam"].split()[1]))
+  def local_date(self) -> datetime:
+    """:class:`datetime`: The date when this earthquake happened in the local timezone."""
+    
+    return self.date.astimezone(timezone(timedelta(hours=_TIMEZONE_OFFSET[self.__inner['Jam'][-1]])))
   
   @property
-  def location(self) -> EarthquakeLocation:
-    split = self.__data["Wilayah"].split()
+  def depth(self) -> float:
+    """:class:`float`: The depth of this earthquake in either Kilometers or Miles."""
+    
+    kms = float(self.__inner['Kedalaman'][:-3])
+  
+    return kms if self._CustomizableUnit__unit == METRIC else kms / 1.609
+  
+  @property
+  def magnitude(self) -> float:
+    """:class:`float`: This earthquake's magnitude."""
+    
+    return float(self.__inner['Magnitude'])
+  
+  @property
+  def latitude(self) -> float:
+    """:class:`float`: This earthquake's epicenter latitude."""
+    
+    return float(self.__inner['Lintang'][:-3])
+  
+  @property
+  def longitude(self) -> float:
+    """:class:`float`: This earthquake's epicenter longitude."""
+    
+    return float(self.__inner['Bujur'][:-3])
 
-    return EarthquakeLocation(
-      int(split[0]) // self.__div,
-      Direction.new(split[2]),
-      split[-1]
-    )
+class FeltEarthquake(RecentEarthquake):
+  """Represents a recent earthquake (any magnitude)."""
+
+  __slots__ = ()
   
-  def __repr__(self) -> str:
-    return f"<Earthquake magnitude={self.magnitude} depth={self.depth} tsunami={self.tsunami} location={self.location}>"
+  def __init__(self, inner: dict, unit: auto, english: bool):
+    super().__init__(inner, unit, english)
+
+  @property
+  def affected_regions(self) -> Iterable[AffectedRegion]:
+    """Iterable[:class:`AffectedRegion`]: Weather forecasts across various areas."""
+  
+    for region in self._RecentEarthquake__inner['Dirasakan'].split(', '):
+      _, mmi, name = AFFECTED_REGION_REGEX.findall(region)[0]
+      
+      yield AffectedRegion(MMI(mmi), name)
+  
+class LatestEarthquake(FeltEarthquake):
+  """Represents the latest earthquake."""
+  
+  __slots__ = ()
+  
+  def __init__(self, inner: dict, unit: auto, english: bool):
+    super().__init__(inner, unit, english)
+
+  @property
+  def shake_map(self) -> str:
+    """:class:`str`: A URL to this earthquake's shake map image."""
+    
+    return f'https://data.bmkg.go.id/DataMKG/TEWS/{self._RecentEarthquake__inner["Shakemap"]}'

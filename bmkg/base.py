@@ -1,7 +1,4 @@
 """
-bmkg
-Unofficial Python wrapper for the BMKG (Meteorology, Climatology, and Geophysical Agency) API.
-
 The MIT License (MIT)
 Copyright (c) 2021-2023 null (https://github.com/null8626)
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,7 +18,40 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from .bmkg import BMKG, BMKGSettings, Province
+from enum import auto
 
-__version__ = '0.5.0'
-__all__ = ('BMKG', 'BMKGSettings', 'Province')
+from .constants import METRIC, VALID_FORMATS
+
+class CustomizableUnit:
+  __slots__ = ('__unit', 'english')
+  
+  
+  def __init__(self, unit: auto, english: bool):
+    self.unit = unit
+    self.english = english
+  
+  @property
+  def unit(self) -> auto:
+    """:class:`auto`: The measuring unit used to display information in this object."""
+    
+    return self.__unit
+  
+  @unit.setter
+  def unit(self, to: auto):
+    """
+    Sets the default measuring unit used to display information in this object.
+    
+    Parameters
+    ----------
+    to: :class:`auto`
+      The new default measuring unit to be used to display information in this object. Must be either :attr:`METRIC` or :attr:`IMPERIAL`.
+    Raises
+    ------
+    Error
+      If the ``to`` argument is not either :attr:`METRIC` or :attr:`IMPERIAL`.
+    """
+    
+    if to not in VALID_FORMATS:
+      raise Error('Invalid measuring unit specified!')
+    
+    self.__unit = to

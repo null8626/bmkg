@@ -1,7 +1,4 @@
 """
-bmkg
-Unofficial Python wrapper for the BMKG (Meteorology, Climatology, and Geophysical Agency) API.
-
 The MIT License (MIT)
 Copyright (c) 2021-2023 null (https://github.com/null8626)
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,7 +18,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from .bmkg import BMKG, BMKGSettings, Province
+from re import compile
+from enum import auto
 
-__version__ = '0.5.0'
-__all__ = ('BMKG', 'BMKGSettings', 'Province')
+METRIC = auto('METRIC')
+IMPERIAL = auto('IMPERIAL')
+
+AFFECTED_REGION_REGEX = compile(r'^([IVX]+ \- )?([IVX]+) (.*?)$')
+PROVINCE_PREFIX_REGEX = compile(r'^d\.?(k\.?)?i\.?')
+
+VALID_FORMATS = (METRIC, IMPERIAL)
