@@ -25,7 +25,6 @@ from .constants import METRIC, VALID_FORMATS
 class CustomizableUnit:
   __slots__ = ('__unit', 'english')
   
-  
   def __init__(self, unit: auto, english: bool):
     self.unit = unit
     self.english = english

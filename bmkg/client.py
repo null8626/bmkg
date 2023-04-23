@@ -19,20 +19,21 @@ SOFTWARE.
 """
 
 from aiohttp import ClientSession, ClientTimeout, TCPConnector
-from xml.etree.ElementTree import fromstring
 from typing import Iterable, Optional, Self, Union
+from xml.etree.ElementTree import fromstring
 from enum import auto
 
-from .base import CustomizableUnit
-from .enums import Province
 from .earthquake import FeltEarthquake, LatestEarthquake, RecentEarthquake
+from .constants import METRIC, VALID_FORMATS
+from .base import CustomizableUnit
+from .forecast import Weather
+from .enums import Province
 from .errors import Error
 
 class Client(CustomizableUnit):
   """Represents a ``python_weather`` :class:`Client` class."""
   
   __slots__ = ('__session', 'english')
-  
   
   def __init__(
     self,
@@ -87,7 +88,7 @@ class Client(CustomizableUnit):
     province: Optional[Union[:class:`str`, :class:`Province`]]
       The requested :class:`Province` :class:`Enum` or province name in the form of a :class:`str` for said weather forecast. Defaults to :attr:`Province.INDONESIA`.
     unit: Optional[:class:`auto`]
-      Overrides the metric or imperial/customary system (:attr:`IMPERIAL`) used by the :class:`Client` object. Defaults to ``None`` (uses the one from the :class:`Client`).
+      Overrides the :term:`metric` or :term:`imperial/customary system` (:attr:`IMPERIAL`) used by the :class:`Client` object. Defaults to ``None`` (uses the one from the :class:`Client`).
     
     Raises
     ------
@@ -112,7 +113,7 @@ class Client(CustomizableUnit):
       unit = self._CustomizableUnit__unit
 
     async with self.__session.get(f'https://data.bmkg.go.id/DataMKG/MEWS/DigitalForecast/DigitalForecast-{province.value}.xml') as resp:
-      return Weather(fromstring(await resp.text()), unit, self.english)
+      return Weather(fromstring(await resp.text()).find ('forecast'), unit, self.english)
   
   async def get_felt_earthquakes(
     self,
@@ -125,7 +126,7 @@ class Client(CustomizableUnit):
     Parameters
     ----------
     unit: Optional[:class:`auto`]
-      Overrides the metric or imperial/customary system (:attr:`IMPERIAL`) used by the :class:`Client` object. Defaults to ``None`` (uses the one from the :class:`Client`).
+      Overrides the :term:`metric` or :term:`imperial/customary system` (:attr:`IMPERIAL`) used by the :class:`Client` object. Defaults to ``None`` (uses the one from the :class:`Client`).
     
     Raises
     ------
@@ -144,8 +145,8 @@ class Client(CustomizableUnit):
       unit = self._CustomizableUnit__unit
 
     async with self.__session.get('https://data.bmkg.go.id/DataMKG/TEWS/gempadirasakan.json') as resp:
-      async with resp.json() as json:
-        return (FeltEarthquake(earthquake, unit, self.english) for earthquake in json['Infogempa']['gempa'])
+      json = await resp.json()
+      return (FeltEarthquake(earthquake, unit, self.english) for earthquake in json['Infogempa']['gempa'])
   
   async def get_recent_earthquakes(
     self,
@@ -158,7 +159,7 @@ class Client(CustomizableUnit):
     Parameters
     ----------
     unit: Optional[:class:`auto`]
-      Overrides the metric or imperial/customary system (:attr:`IMPERIAL`) used by the :class:`Client` object. Defaults to ``None`` (uses the one from the :class:`Client`).
+      Overrides the :term:`metric` or :term:`imperial/customary system` (:attr:`IMPERIAL`) used by the :class:`Client` object. Defaults to ``None`` (uses the one from the :class:`Client`).
     
     Raises
     ------
@@ -177,8 +178,8 @@ class Client(CustomizableUnit):
       unit = self._CustomizableUnit__unit
 
     async with self.__session.get('https://data.bmkg.go.id/DataMKG/TEWS/gempaterkini.json') as resp:
-      async with resp.json() as json:
-        return (RecentEarthquake(earthquake, unit, self.english) for earthquake in json['Infogempa']['gempa'])
+      json = await resp.json()
+      return (RecentEarthquake(earthquake, unit, self.english) for earthquake in json['Infogempa']['gempa'])
   
   async def get_latest_earthquake(
     self,
@@ -191,7 +192,7 @@ class Client(CustomizableUnit):
     Parameters
     ----------
     unit: Optional[:class:`auto`]
-      Overrides the metric or imperial/customary system (:attr:`IMPERIAL`) used by the :class:`Client` object. Defaults to ``None`` (uses the one from the :class:`Client`).
+      Overrides the :term:`metric` or :term:`imperial/customary system` (:attr:`IMPERIAL`) used by the :class:`Client` object. Defaults to ``None`` (uses the one from the :class:`Client`).
     
     Raises
     ------
@@ -210,8 +211,8 @@ class Client(CustomizableUnit):
       unit = self._CustomizableUnit__unit
 
     async with self.__session.get('https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json') as resp:
-      async with resp.json() as json:
-        return LatestEarthquake(json['Infogempa']['gempa'], unit, self.english)
+      json = await resp.json()
+      return LatestEarthquake(json['Infogempa']['gempa'], unit, self.english)
   
   async def close(self):
     """|coro|

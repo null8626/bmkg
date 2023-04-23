@@ -21,7 +21,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from .bmkg import BMKG, BMKGSettings, Province
+from .constants import METRIC, IMPERIAL
+from .client import Client
+from .enums import Province
 
 __version__ = '0.5.0'
-__all__ = ('BMKG', 'BMKGSettings', 'Province')
+__all__ = ('Client', 'METRIC', 'IMPERIAL', 'Province')

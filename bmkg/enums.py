@@ -144,7 +144,7 @@ class ForecastKind(Enum):
   def _missing_(self, name: str) -> Self:
     if name == "2":
       return WeatherKind.PARTLY_CLOUDY
-    elif name == "97"
+    elif name == "97":
       return WeatherKind.SEVERE_THUNDERSTORM
   
   def __str__(self) -> str:
