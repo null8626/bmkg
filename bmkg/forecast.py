@@ -40,7 +40,7 @@ WindSpeed = namedtuple('WindSpeed', 'date knots value')
 
 class Forecast(CustomizableUnit):
   """Represents a single weather forecast for a given location."""
-
+  
   __slots__ = ('__inner',)
   
   def __init__(self, elem: Element, unit: auto, english: bool):
@@ -64,7 +64,7 @@ class Forecast(CustomizableUnit):
     """:class:`float`: The :term:`longitude`."""
     
     return float(self.__inner.attrib['longitude'])
-
+  
   @property
   def area_kind(self) -> AreaKind:
     """:class:`AreaKind`: The kind of this weather forecast's location."""
@@ -77,102 +77,125 @@ class Forecast(CustomizableUnit):
     
     xml_lang = 'en_US' if self.english else 'id_ID'
     
-    return self.__inner.find(f'./name[@xml:lang="{xml_lang}"]', namespaces=XML_NAMESPACES).text
-
+    return self.__inner.find(
+      f'./name[@xml:lang="{xml_lang}"]', namespaces=XML_NAMESPACES
+    ).text
+  
   @property
   def humidity(self) -> Iterable[Humidity]:
     """Iterable[:class:`Humidity`]: This weather forecast's humidity values across various timeframes."""
-  
-    return (Humidity(
-      datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
-      int(child.find('value').text)
-    ) for child in self.__inner.iterfind('./parameter[@id="hu"]/timerange'))
+    
+    return (
+      Humidity(
+        datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
+        int(child.find('value').text)
+      ) for child in self.__inner.iterfind('./parameter[@id="hu"]/timerange')
+    )
   
   @property
   def min_humidity(self) -> Iterable[MinHumidity]:
     """Iterable[:class:`MinHumidity`]: This weather forecast's minimum humidity values across various timeframes."""
-  
-    return (MinHumidity(
-      datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
-      int(child.find('value').text)
-    ) for child in self.__inner.iterfind('./parameter[@id="humin"]/timerange'))
+    
+    return (
+      MinHumidity(
+        datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
+        int(child.find('value').text)
+      )
+      for child in self.__inner.iterfind('./parameter[@id="humin"]/timerange')
+    )
   
   @property
   def max_humidity(self) -> Iterable[MaxHumidity]:
     """Iterable[:class:`MaxHumidity`]: This weather forecast's maximum humidity values across various timeframes."""
-  
-    return (MaxHumidity(
-      datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
-      int(child.find('value').text)
-    ) for child in self.__inner.iterfind('./parameter[@id="humax"]/timerange'))
+    
+    return (
+      MaxHumidity(
+        datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
+        int(child.find('value').text)
+      )
+      for child in self.__inner.iterfind('./parameter[@id="humax"]/timerange')
+    )
   
   @property
   def temperature(self) -> Iterable[Temperature]:
     """Iterable[:class:`Temperature`]: This weather forecast's temperature across various timeframes."""
-  
+    
     unit = 'C' if self._CustomizableUnit__unit == METRIC else 'F'
-  
-    return (Temperature(
-      datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
-      float(child.find(f'./value[@unit="{unit}"]').text)
-    ) for child in self.__inner.iterfind('./parameter[@id="t"]/timerange'))
+    
+    return (
+      Temperature(
+        datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
+        float(child.find(f'./value[@unit="{unit}"]').text)
+      ) for child in self.__inner.iterfind('./parameter[@id="t"]/timerange')
+    )
   
   @property
   def min_temperature(self) -> Iterable[MinTemperature]:
     """Iterable[:class:`MinTemperature`]: This weather forecast's minimum temperature across various timeframes."""
     
     unit = 'C' if self._CustomizableUnit__unit == METRIC else 'F'
+    
+    return (
+      MinTemperature(
+        datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
+        float(child.find(f'./value[@unit="{unit}"]').text)
+      ) for child in self.__inner.iterfind('./parameter[@id="tmin"]/timerange')
+    )
   
-    return (MinTemperature(
-      datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
-      float(child.find(f'./value[@unit="{unit}"]').text)
-    ) for child in self.__inner.iterfind('./parameter[@id="tmin"]/timerange'))
-
   @property
   def max_temperature(self) -> Iterable[MaxTemperature]:
     """Iterable[:class:`MinTemperature`]: This weather forecast's maximum temperature across various timeframes."""
-  
+    
     unit = 'C' if self._CustomizableUnit__unit == METRIC else 'F'
-  
-    return (MaxTemperature(
-      datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
-      float(child.find(f'./value[@unit="{unit}"]').text)
-    ) for child in self.__inner.iterfind('./parameter[@id="tmax"]/timerange'))
+    
+    return (
+      MaxTemperature(
+        datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
+        float(child.find(f'./value[@unit="{unit}"]').text)
+      ) for child in self.__inner.iterfind('./parameter[@id="tmax"]/timerange')
+    )
   
   @property
   def hourly(self) -> Iterable[HourlyForecast]:
     """Iterable[:class:`HourlyForecast`]: This weather forecast's hourly forecast."""
-  
-    return (HourlyForecast(
-      datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
-      ForecastKind(child.find('value').text)
-    ) for child in self.__inner.iterfind('./parameter[@id="weather"]/timerange'))
+    
+    return (
+      HourlyForecast(
+        datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
+        ForecastKind(child.find('value').text)
+      ) for child in
+      self.__inner.iterfind('./parameter[@id="weather"]/timerange')
+    )
   
   @property
   def wind_direction(self) -> Iterable[WindDirection]:
     """Iterable[:class:`WindDirection`]: This weather forecast's wind direction across various timeframes."""
-  
-    return (WindDirection(
-      datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
-      float(child.find('./value[@unit="deg"]').text),
-      Direction(child.find('./value[@unit="CARD"]').text)
-    ) for child in self.__inner.iterfind('./parameter[@id="wd"]/timerange'))
+    
+    return (
+      WindDirection(
+        datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
+        float(child.find('./value[@unit="deg"]').text),
+        Direction(child.find('./value[@unit="CARD"]').text)
+      ) for child in self.__inner.iterfind('./parameter[@id="wd"]/timerange')
+    )
   
   @property
   def wind_speeds(self) -> Iterable[WindSpeed]:
     """Iterable[:class:`WindSpeed`]: This weather forecast's wind speeds across various timeframes."""
-  
+    
     unit = 'KPH' if self._CustomizableUnit__unit == METRIC else 'MPH'
-  
-    return (WindSpeed(
-      datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
-      float(child.find('./value[@unit="Kt"]').text),
-      float(child.find(f'./value[@unit="{unit}"]').text)
-    ) for child in self.__inner.iterfind('./parameter[@id="ws"]/timerange'))
+    
+    return (
+      WindSpeed(
+        datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
+        float(child.find('./value[@unit="Kt"]').text),
+        float(child.find(f'./value[@unit="{unit}"]').text)
+      ) for child in self.__inner.iterfind('./parameter[@id="ws"]/timerange')
+    )
 
 class Weather(CustomizableUnit):
   """Represents an array of weather forecasts in a specific time."""
-
+  
   __slots__ = ('__inner',)
   
   def __init__(self, elem: Element, unit: auto, english: bool):
@@ -188,11 +211,16 @@ class Weather(CustomizableUnit):
   @property
   def date(self) -> datetime:
     """:class:`datetime`: The date for this weather forecast."""
-  
-    return datetime.strptime(self.__inner.find('./issue/timestamp').text, '%Y%m%d%H%M%S')
+    
+    return datetime.strptime(
+      self.__inner.find('./issue/timestamp').text, '%Y%m%d%H%M%S'
+    )
   
   @property
   def forecasts(self) -> Iterable[Forecast]:
     """Iterable[:class:`Forecast`]: Weather forecasts across various areas."""
-  
-    return (Forecast(area, self._CustomizableUnit__unit, self.english) for area in self.__inner.iter('area'))
+    
+    return (
+      Forecast(area, self._CustomizableUnit__unit, self.english)
+      for area in self.__inner.iter('area')
+    )

@@ -14,14 +14,16 @@ def _test_properties(obj, indent_level=0, in_recursion=False):
   for name in dir(obj.__class__):
     attr = getattr(obj.__class__, name)
     
-    if (isinstance(attr, property) and attr.fget) or isinstance(attr, _tuplegetter):
+    if (isinstance(attr, property) and
+        attr.fget) or isinstance(attr, _tuplegetter):
       if not exists:
         print()
         exists = True
       
       stdout.write(f'{" " * indent_level}{obj.__class__.__name__}#{name}')
       
-      data = getattr(obj, name) if isinstance(attr, _tuplegetter) else attr.fget(obj)
+      data = getattr(obj, name) if isinstance(attr,
+                                              _tuplegetter) else attr.fget(obj)
       
       if isgenerator(data):
         stdout.write('[0] -> ')

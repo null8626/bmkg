@@ -67,16 +67,15 @@ class Client(CustomizableUnit):
       connector=TCPConnector(verify_ssl=False)
     )
   
-  
   def __repr__(self) -> str:
     """:class:`str`: The string representation of this object."""
     
     return f'<{self.__class__.__name__} {self.__session!r}>'
   
-  
   async def get_forecast(
     self,
-    province: Optional[Union[str, Province]] = Province.INDONESIA, # indonesia is not a province wtf
+    province: Optional[Union[
+      str, Province]] = Province.INDONESIA,  # indonesia is not a province wtf
     *,
     unit: Optional[auto] = None
   ) -> Weather:
@@ -107,19 +106,23 @@ class Client(CustomizableUnit):
     if self.__session.closed:
       raise Error('Client is already closed')
     
-    province = province if isinstance(province, Province) else Province(province)
+    province = province if isinstance(province,
+                                      Province) else Province(province)
     
     if unit not in VALID_FORMATS:
       unit = self._CustomizableUnit__unit
-
-    async with self.__session.get(f'https://data.bmkg.go.id/DataMKG/MEWS/DigitalForecast/DigitalForecast-{province.value}.xml') as resp:
-      return Weather(fromstring(await resp.text()).find ('forecast'), unit, self.english)
+    
+    async with self.__session.get(
+      f'https://data.bmkg.go.id/DataMKG/MEWS/DigitalForecast/DigitalForecast-{province.value}.xml'
+    ) as resp:
+      return Weather(
+        fromstring(await resp.text()).find('forecast'), unit, self.english
+      )
   
-  async def get_felt_earthquakes(
-    self,
-    *,
-    unit: Optional[auto] = None
-  ) -> Iterable[FeltEarthquake]:
+  async def get_felt_earthquakes(self,
+                                 *,
+                                 unit: Optional[auto] = None
+                                 ) -> Iterable[FeltEarthquake]:
     """|coro|
     Fetches the recent earthquakes regardless of their magnitude.
     
@@ -143,16 +146,20 @@ class Client(CustomizableUnit):
     
     if unit not in VALID_FORMATS:
       unit = self._CustomizableUnit__unit
-
-    async with self.__session.get('https://data.bmkg.go.id/DataMKG/TEWS/gempadirasakan.json') as resp:
+    
+    async with self.__session.get(
+      'https://data.bmkg.go.id/DataMKG/TEWS/gempadirasakan.json'
+    ) as resp:
       json = await resp.json()
-      return (FeltEarthquake(earthquake, unit, self.english) for earthquake in json['Infogempa']['gempa'])
+      return (
+        FeltEarthquake(earthquake, unit, self.english)
+        for earthquake in json['Infogempa']['gempa']
+      )
   
-  async def get_recent_earthquakes(
-    self,
-    *,
-    unit: Optional[auto] = None
-  ) -> Iterable[RecentEarthquake]:
+  async def get_recent_earthquakes(self,
+                                   *,
+                                   unit: Optional[auto] = None
+                                   ) -> Iterable[RecentEarthquake]:
     """|coro|
     Fetches the recent earthquakes with the magnitude >= 5.0.
     
@@ -176,15 +183,18 @@ class Client(CustomizableUnit):
     
     if unit not in VALID_FORMATS:
       unit = self._CustomizableUnit__unit
-
-    async with self.__session.get('https://data.bmkg.go.id/DataMKG/TEWS/gempaterkini.json') as resp:
+    
+    async with self.__session.get(
+      'https://data.bmkg.go.id/DataMKG/TEWS/gempaterkini.json'
+    ) as resp:
       json = await resp.json()
-      return (RecentEarthquake(earthquake, unit, self.english) for earthquake in json['Infogempa']['gempa'])
+      return (
+        RecentEarthquake(earthquake, unit, self.english)
+        for earthquake in json['Infogempa']['gempa']
+      )
   
   async def get_latest_earthquake(
-    self,
-    *,
-    unit: Optional[auto] = None
+    self, *, unit: Optional[auto] = None
   ) -> LatestEarthquake:
     """|coro|
     Fetches the latest earthquake.
@@ -209,8 +219,10 @@ class Client(CustomizableUnit):
     
     if unit not in VALID_FORMATS:
       unit = self._CustomizableUnit__unit
-
-    async with self.__session.get('https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json') as resp:
+    
+    async with self.__session.get(
+      'https://data.bmkg.go.id/DataMKG/TEWS/autogempa.json'
+    ) as resp:
       json = await resp.json()
       return LatestEarthquake(json['Infogempa']['gempa'], unit, self.english)
   

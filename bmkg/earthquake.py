@@ -29,15 +29,11 @@ from .enums import MMI
 
 AffectedRegion = namedtuple('AffectedRegion', 'mmi region')
 
-_TIMEZONE_OFFSET = {
-  "B": 7,
-  "A": 8,
-  "T": 9
-}
+_TIMEZONE_OFFSET = {"B": 7, "A": 8, "T": 9}
 
 class RecentEarthquake(CustomizableUnit):
   """Represents a recent earthquake with a magnitude >= 5.0."""
-
+  
   __slots__ = ('__inner',)
   
   def __init__(self, inner: dict, unit: auto, english: bool):
@@ -55,14 +51,16 @@ class RecentEarthquake(CustomizableUnit):
   def local_date(self) -> datetime:
     """:class:`datetime`: The date when this earthquake happened in the local timezone."""
     
-    return self.date.astimezone(timezone(timedelta(hours=_TIMEZONE_OFFSET[self.__inner['Jam'][-1]])))
+    return self.date.astimezone(
+      timezone(timedelta(hours=_TIMEZONE_OFFSET[self.__inner['Jam'][-1]]))
+    )
   
   @property
   def depth(self) -> float:
     """:class:`float`: The depth of this earthquake in either Kilometers or Miles."""
     
     kms = float(self.__inner['Kedalaman'][:-3])
-  
+    
     return kms if self._CustomizableUnit__unit == METRIC else kms / 1.609
   
   @property
@@ -85,21 +83,21 @@ class RecentEarthquake(CustomizableUnit):
 
 class FeltEarthquake(RecentEarthquake):
   """Represents a recent earthquake (any magnitude)."""
-
+  
   __slots__ = ()
   
   def __init__(self, inner: dict, unit: auto, english: bool):
     super().__init__(inner, unit, english)
-
+  
   @property
   def affected_regions(self) -> Iterable[AffectedRegion]:
     """Iterable[:class:`AffectedRegion`]: Weather forecasts across various areas."""
-  
+    
     for region in self._RecentEarthquake__inner['Dirasakan'].split(', '):
       _, mmi, name = AFFECTED_REGION_REGEX.findall(region)[0]
       
       yield AffectedRegion(MMI(mmi), name)
-  
+
 class LatestEarthquake(FeltEarthquake):
   """Represents the latest earthquake."""
   
@@ -107,7 +105,7 @@ class LatestEarthquake(FeltEarthquake):
   
   def __init__(self, inner: dict, unit: auto, english: bool):
     super().__init__(inner, unit, english)
-
+  
   @property
   def shake_map(self) -> str:
     """:class:`str`: A URL to this earthquake's shake map image."""

@@ -26,12 +26,12 @@ from .errors import Error
 
 class AreaKind(Enum):
   """Represents kinds of areas."""
-
+  
   __slots__ = ()
   
   LAND = 'land'
   SEA = 'sea'
-
+  
   def __str__(self) -> str:
     """:class:`str`: The stylized name for this :class:`Enum`."""
     
@@ -82,9 +82,9 @@ class Province(Enum):
   def _missing_(self, name: Optional[str]) -> Self:
     if name is None:
       return self.INDONESIA
-  
+    
     name = PROVINCE_PREFIX_REGEX.sub('', name.lower().lstrip()).replace(' ', '')
-  
+    
     for e in Province:
       n = e.name.lower()
       v = e.value.lower()
@@ -96,9 +96,9 @@ class Province(Enum):
 
 class Direction(Enum):
   """Represents a wind direction."""
-
+  
   __slots__ = ()
-
+  
   NORTH = "N"
   NORTH_NORTHEAST = "NNE"
   NORTHEAST = "NE"
@@ -124,9 +124,9 @@ class Direction(Enum):
 
 class ForecastKind(Enum):
   """Represents a weather forecast kind."""
-
+  
   __slots__ = ()
-
+  
   CLEAR_SKIES = "0"
   PARTLY_CLOUDY = "1"
   MOSTLY_CLOUDY = "3"
@@ -151,12 +151,12 @@ class ForecastKind(Enum):
     """:class:`str`: The stylized name for this :class:`Enum`."""
     
     return self.name.replace('_', ' ').title()
-    
+
 class MMI(Enum):
   """Represents an earthquake's MMI (Modified Mercalli Intensity) scale."""
-
+  
   __slots__ = ()
-
+  
   NOT_FELT = "I"
   WEAK = "II"
   LIGHT = "IV"

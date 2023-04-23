@@ -27,4 +27,4 @@ IMPERIAL = auto('IMPERIAL')
 AFFECTED_REGION_REGEX = compile(r'^([IVX]+\s*\-\s*)?([IVX]+) (.*?)$')
 PROVINCE_PREFIX_REGEX = compile(r'^d\.?(k\.?)?i\.?')
 VALID_FORMATS = (METRIC, IMPERIAL)
-XML_NAMESPACES = { "xml": "http://www.w3.org/XML/1998/namespace" }
+XML_NAMESPACES = {"xml": "http://www.w3.org/XML/1998/namespace"}
