@@ -25,7 +25,7 @@ from .enums import AreaKind, Direction, ForecastKind, MMI, Province
 from .constants import METRIC, IMPERIAL
 from .client import Client
 
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 __all__ = (
   'AreaKind', 'Client', 'Direction', 'ForecastKind', 'METRIC', 'MMI',
   'IMPERIAL', 'Province'

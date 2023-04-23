@@ -29,11 +29,11 @@ from .constants import METRIC, XML_NAMESPACES
 from .base import CustomizableUnit
 
 Humidity = namedtuple('Humidity', 'date value')
-MinHumidity = namedtuple('MinHumidity', 'date value')
-MaxHumidity = namedtuple('MaxHumidity', 'date value')
+LowestHumidity = namedtuple('LowestHumidity', 'date value')
+HighestHumidity = namedtuple('HighestHumidity', 'date value')
 Temperature = namedtuple('Temperature', 'date value')
-MinTemperature = namedtuple('MinTemperature', 'date value')
-MaxTemperature = namedtuple('MaxTemperature', 'date value')
+LowestTemperature = namedtuple('LowestTemperature', 'date value')
+HighestTemperature = namedtuple('HighestTemperature', 'date value')
 HourlyForecast = namedtuple('HourlyForecast', 'date kind')
 WindDirection = namedtuple('WindDirection', 'date degrees direction')
 WindSpeed = namedtuple('WindSpeed', 'date knots value')
@@ -93,11 +93,11 @@ class Forecast(CustomizableUnit):
     )
   
   @property
-  def min_humidity(self) -> Iterable[MinHumidity]:
-    """Iterable[:class:`MinHumidity`]: This weather forecast's minimum humidity values across various timeframes."""
+  def lowest_humidity(self) -> Iterable[LowestHumidity]:
+    """Iterable[:class:`LowestHumidity`]: This weather forecast's lowest humidity values across various timeframes."""
     
     return (
-      MinHumidity(
+      LowestHumidity(
         datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
         int(child.find('value').text)
       )
@@ -105,11 +105,11 @@ class Forecast(CustomizableUnit):
     )
   
   @property
-  def max_humidity(self) -> Iterable[MaxHumidity]:
-    """Iterable[:class:`MaxHumidity`]: This weather forecast's maximum humidity values across various timeframes."""
+  def highest_humidity(self) -> Iterable[HighestHumidity]:
+    """Iterable[:class:`HighestHumidity`]: This weather forecast's highest humidity values across various timeframes."""
     
     return (
-      MaxHumidity(
+      HighestHumidity(
         datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
         int(child.find('value').text)
       )
@@ -130,26 +130,26 @@ class Forecast(CustomizableUnit):
     )
   
   @property
-  def min_temperature(self) -> Iterable[MinTemperature]:
-    """Iterable[:class:`MinTemperature`]: This weather forecast's minimum temperature across various timeframes."""
+  def lowest_temperature(self) -> Iterable[LowestTemperature]:
+    """Iterable[:class:`LowestTemperature`]: This weather forecast's lowest temperature across various timeframes."""
     
     unit = 'C' if self._CustomizableUnit__unit == METRIC else 'F'
     
     return (
-      MinTemperature(
+      LowestTemperature(
         datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
         float(child.find(f'./value[@unit="{unit}"]').text)
       ) for child in self.__inner.iterfind('./parameter[@id="tmin"]/timerange')
     )
   
   @property
-  def max_temperature(self) -> Iterable[MaxTemperature]:
-    """Iterable[:class:`MinTemperature`]: This weather forecast's maximum temperature across various timeframes."""
+  def highest_temperature(self) -> Iterable[HighestTemperature]:
+    """Iterable[:class:`LowestTemperature`]: This weather forecast's highest temperature across various timeframes."""
     
     unit = 'C' if self._CustomizableUnit__unit == METRIC else 'F'
     
     return (
-      MaxTemperature(
+      HighestTemperature(
         datetime.strptime(child.attrib['datetime'], '%Y%m%d%H%M'),
         float(child.find(f'./value[@unit="{unit}"]').text)
       ) for child in self.__inner.iterfind('./parameter[@id="tmax"]/timerange')
