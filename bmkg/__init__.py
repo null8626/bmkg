@@ -21,9 +21,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
+from .enums import AreaKind, Direction, ForecastKind, MMI, Province
 from .constants import METRIC, IMPERIAL
-from .enums import Province
 from .client import Client
 
-__version__ = '1.0.0'
-__all__ = ('Client', 'METRIC', 'IMPERIAL', 'Province')
+__version__ = '1.0.1'
+__all__ = ('AreaKind', 'Client', 'Direction', 'ForecastKind', 'METRIC', 'MMI', 'IMPERIAL', 'Province')
