@@ -18,13 +18,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from collections import namedtuple
 from datetime import datetime, timedelta, timezone
-from enum import auto
+from collections import namedtuple
 from typing import Iterable
+from enum import auto
 
-from .base import CustomizableUnit
 from .constants import AFFECTED_REGION_REGEX, METRIC
+from .base import CustomizableUnit
 from .enums import MMI
 
 AffectedRegion = namedtuple('AffectedRegion', 'mmi region')

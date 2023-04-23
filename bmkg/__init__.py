@@ -25,5 +25,5 @@ from .constants import METRIC, IMPERIAL
 from .enums import Province
 from .client import Client
 
-__version__ = '0.5.0'
+__version__ = '1.0.0'
 __all__ = ('Client', 'METRIC', 'IMPERIAL', 'Province')
