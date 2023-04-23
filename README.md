@@ -35,6 +35,7 @@ async def getweather():
     
     # get the weather forecast across various locations
     for forecast in weather.forecasts:
+    
       # temperature of this forecast across various timeframes
       for temp in weather.temperature:
         print(f'temperature at {temp.date!r} is {temp.value!r}')
