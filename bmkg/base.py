@@ -20,7 +20,7 @@ SOFTWARE.
 
 from enum import auto
 
-from .constants import METRIC, VALID_FORMATS
+from .constants import METRIC, VALID_UNITS
 
 class CustomizableUnit:
   __slots__ = ('__unit', 'english')
@@ -50,7 +50,7 @@ class CustomizableUnit:
       If the ``to`` argument is not either :attr:`METRIC` or :attr:`IMPERIAL`.
     """
     
-    if to not in VALID_FORMATS:
+    if to not in VALID_UNITS:
       raise Error('Invalid measuring unit specified!')
     
     self.__unit = to

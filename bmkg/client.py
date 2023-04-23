@@ -24,7 +24,7 @@ from xml.etree.ElementTree import fromstring
 from enum import auto
 
 from .earthquake import FeltEarthquake, LatestEarthquake, RecentEarthquake
-from .constants import METRIC, VALID_FORMATS
+from .constants import METRIC, VALID_UNITS
 from .base import CustomizableUnit
 from .forecast import Weather
 from .enums import Province
@@ -109,7 +109,7 @@ class Client(CustomizableUnit):
     province = province if isinstance(province,
                                       Province) else Province(province)
     
-    if unit not in VALID_FORMATS:
+    if unit not in VALID_UNITS:
       unit = self._CustomizableUnit__unit
     
     async with self.__session.get(
@@ -144,7 +144,7 @@ class Client(CustomizableUnit):
       The recent earthquakes regardless of their magnitude.
     """
     
-    if unit not in VALID_FORMATS:
+    if unit not in VALID_UNITS:
       unit = self._CustomizableUnit__unit
     
     async with self.__session.get(
@@ -181,7 +181,7 @@ class Client(CustomizableUnit):
       The recent earthquakes with the magnitude >= 5.0.
     """
     
-    if unit not in VALID_FORMATS:
+    if unit not in VALID_UNITS:
       unit = self._CustomizableUnit__unit
     
     async with self.__session.get(
@@ -217,7 +217,7 @@ class Client(CustomizableUnit):
       The latest earthquake.
     """
     
-    if unit not in VALID_FORMATS:
+    if unit not in VALID_UNITS:
       unit = self._CustomizableUnit__unit
     
     async with self.__session.get(

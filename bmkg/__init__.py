@@ -22,8 +22,8 @@ SOFTWARE.
 """
 
 from .constants import METRIC, IMPERIAL
-from .client import Client
 from .enums import Province
+from .client import Client
 
 __version__ = '0.5.0'
 __all__ = ('Client', 'METRIC', 'IMPERIAL', 'Province')

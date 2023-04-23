@@ -1,55 +1,50 @@
-# [bmkg][pypi-url] [![pypi][pypi-image]][pypi-url] [![downloads][downloads-image]][pypi-url] [![Build Status][ci-image]][ci-url] [![languages][languages-image]][github-url] [![libraries.io dependents][libraries-io-dependents-image]][libraries-io-url] [![libraries.io score][libraries-io-score-image]][libraries-io-url] [![github code size][github-code-size-image]][github-url] [![license][github-license-image]][github-license-url] [![BLAZINGLY FAST!!!][blazingly-fast-image]][blazingly-fast-url]
+# [bmkg][pypi-url] [![pypi][pypi-image]][pypi-url] [![downloads][downloads-image]][pypi-url] [![Build Status][ci-image]][ci-url] [![license][github-license-image]][github-license-url] [![BLAZINGLY FAST!!!][blazingly-fast-image]][blazingly-fast-url]
 
 [pypi-image]: https://img.shields.io/pypi/v/bmkg.svg?style=flat-square
 [pypi-url]: https://pypi.org/project/bmkg/
 [downloads-image]: https://img.shields.io/pypi/dm/bmkg?style=flat-square
 [ci-image]: https://github.com/null8626/bmkg/workflows/CI/badge.svg
-[ci-url]: https://github.com/null8626/bmkg/actions
-[languages-image]: https://img.shields.io/github/languages/top/null8626/bmkg?style=flat-square
-[libraries-io-dependents-image]: https://img.shields.io/librariesio/dependents/pypi/bmkg?style=flat-square
-[libraries-io-score-image]: https://img.shields.io/librariesio/sourcerank/pypi/bmkg?style=flat-square
-[libraries-io-url]: https://libraries.io/pypi/bmkg
-[github-url]: https://github.com/null8626/bmkg
-[github-code-size-image]: https://img.shields.io/github/languages/code-size/null8626/bmkg?style=flat-square
+[ci-url]: https://github.com/null8626/bmkg/actions/workflows/CI.yml
 [github-license-image]: https://img.shields.io/github/license/null8626/bmkg?style=flat-square
 [github-license-url]: https://github.com/null8626/bmkg/blob/main/LICENSE
 [blazingly-fast-image]: https://img.shields.io/badge/speed-BLAZINGLY%20FAST!!!%20%F0%9F%94%A5%F0%9F%9A%80%F0%9F%92%AA%F0%9F%98%8E-brightgreen.svg?style=flat-square
 [blazingly-fast-url]: https://twitter.com/acdlite/status/974390255393505280
 
-Unofficial Python wrapper for the [BMKG (Meteorology, Climatology, and Geophysical Agency)](https://www.bmkg.go.id/) API.<br>
+Unofficial Python wrapper for the [BMKG (Meteorology, Climatology, and Geophysical Agency)](https://www.bmkg.go.id/) API.
 
 ## Installation
-```bash
+
+```console
 $ pip install bmkg
 ```
 
-## Importing
+## Example
+
 ```py
-from bmkg import BMKG
-```
+# import the module
+import bmkg
 
-## Usage
-P.S: wrap this example in an async function!
-```py
-from bmkg import Province
+import asyncio
+import os
 
-# initiate the class
-bmkg = BMKG()
+async def getweather():
+  # declare the client. the measuring unit used defaults to the metric system (celcius, km/h, etc.)
+  async with bmkg.Client(unit=bmkg.IMPERIAL) as client:
+    # fetch a weather forecast from a province
+    weather = await client.get_forecast(bmkg.Province.JAKARTA)
+    
+    # get the weather forecast across various locations
+    for forecast in weather.forecasts:
+      
+      # temperature of this forecast across various timeframes
+      for temp in weather.temperature:
+        print(f'temperature at {temp.date!r} is {temp.value!r}')
 
-forecast = await bmkg.get_forecast(Province.jawa_barat)
-print(forecast)
-
-# get history of the latest earthquakes
-earthquakes = await bmkg.get_recent_earthquakes()
-for earthquake in earthquakes:
-    print(earthquake)
-
-# get wind forecast image
-image = await bmkg.get_wind_forecast()
-with open("wind-forecast.jpg", "wb") as f:
-    f.write(image)
-    f.close()
-
-# close the class once done
-await bmkg.close()
+if __name__ == '__main__':
+  # see https://stackoverflow.com/questions/45600579/asyncio-event-loop-is-closed-when-getting-loop
+  # for more details
+  if os.name == 'nt':
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+  
+  asyncio.run(getweather())
 ```
