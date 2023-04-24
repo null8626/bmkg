@@ -70,15 +70,14 @@ class Client(CustomizableUnit):
   def __repr__(self) -> str:
     """:class:`str`: The string representation of this object."""
     
-    return f'<{self.__class__.__name__} {self.__session!r}>'
+    return f'<{self.__class__.__name__} [{self.__session!r}]>'
   
   async def get_forecast(
     self,
-    province: Optional[Union[
-      str, Province]] = Province.INDONESIA,  # indonesia is not a province wtf
+    province: Optional[Union[str, Province]] = Province.INDONESIA,
     *,
     unit: Optional[auto] = None
-  ) -> Weather:
+  ) -> Weather: # yapf: disable
     """|coro|
     Fetches a weather forecast for a specific province.
     
@@ -106,8 +105,7 @@ class Client(CustomizableUnit):
     if self.__session.closed:
       raise Error('Client is already closed')
     
-    province = province if isinstance(province,
-                                      Province) else Province(province)
+    province = province if isinstance(province, Province) else Province(province) # yapf: disable
     
     if unit not in VALID_UNITS:
       unit = self._CustomizableUnit__unit
@@ -119,10 +117,11 @@ class Client(CustomizableUnit):
         fromstring(await resp.text()).find('forecast'), unit, self.english
       )
   
-  async def get_felt_earthquakes(self,
-                                 *,
-                                 unit: Optional[auto] = None
-                                 ) -> Iterable[FeltEarthquake]:
+  async def get_felt_earthquakes(
+    self,
+    *,
+    unit: Optional[auto] = None
+  ) -> Iterable[FeltEarthquake]: # yapf: disable
     """|coro|
     Fetches the recent earthquakes regardless of their magnitude.
     
@@ -156,10 +155,11 @@ class Client(CustomizableUnit):
         for earthquake in json['Infogempa']['gempa']
       )
   
-  async def get_recent_earthquakes(self,
-                                   *,
-                                   unit: Optional[auto] = None
-                                   ) -> Iterable[RecentEarthquake]:
+  async def get_recent_earthquakes(
+    self,
+    *,
+    unit: Optional[auto] = None
+  ) -> Iterable[RecentEarthquake]: # yapf: disable
     """|coro|
     Fetches the recent earthquakes with the magnitude >= 5.0.
     

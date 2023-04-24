@@ -1,29 +1,21 @@
-from _collections import _tuplegetter
 from inspect import isgenerator
 from sys import stdout
-import traceback
 import asyncio
 import bmkg
 import os
 
 INDENTATION = 2
 
-def _test_properties(obj, indent_level=0, in_recursion=False):
-  exists = not in_recursion
-  
+is_local = lambda data: getattr(data, '__module__', '').startswith('bmkg') # yapf: disable
+
+def _test(obj, indent_level=0):
   for name in dir(obj.__class__):
     attr = getattr(obj.__class__, name)
     
-    if (isinstance(attr, property) and
-        attr.fget) or isinstance(attr, _tuplegetter):
-      if not exists:
-        print()
-        exists = True
-      
+    if isinstance(attr, property) and attr.fget:
       stdout.write(f'{" " * indent_level}{obj.__class__.__name__}#{name}')
       
-      data = getattr(obj, name) if isinstance(attr,
-                                              _tuplegetter) else attr.fget(obj)
+      data = getattr(obj, name)
       
       if isgenerator(data):
         stdout.write('[0] -> ')
@@ -34,31 +26,24 @@ def _test_properties(obj, indent_level=0, in_recursion=False):
               f'{" " * indent_level}{obj.__class__.__name__}#{name}[{i}] -> '
             )
           
-          _test_properties(each, indent_level + INDENTATION, True)
+          print(repr(each))
+          _test(each, indent_level + INDENTATION)
         
         continue
       
-      stdout.write(' -> ')
+      print(f' -> {data!r}')
       
-      if getattr(data, '__module__', '').startswith('python_weather'):
-        _test_properties(data, indent_level + INDENTATION, True)
-      else:
-        print(repr(data))
-  
-  if not exists:
-    print(repr(obj))
+      if is_local(data):
+        _test(data, indent_level + INDENTATION)
 
 def test(obj):
-  try:
-    if isgenerator(obj):
-      for i, each in enumerate(obj):
-        print(f'{each.__class__.__name__}[{i}] -> ')
-        _test_properties(each, INDENTATION)
-    else:
-      _test_properties(obj)
-  except:
-    print(f'\n\n{traceback.format_exc().rstrip()}')
-    exit(1)
+  print(f'{obj!r} -> ')
+  _test(obj, INDENTATION)
+
+def test_iter(obj):
+  for i, each in enumerate(obj):
+    print(f'[{i}] -> {each!r}')
+    _test(each, INDENTATION)
 
 async def getweather():
   async with bmkg.Client(unit=bmkg.IMPERIAL) as client:
@@ -69,10 +54,10 @@ async def getweather():
     test(await client.get_latest_earthquake())
     
     print('\nclient.get_recent_earthquakes:')
-    test(await client.get_recent_earthquakes())
+    test_iter(await client.get_recent_earthquakes())
     
     print('\nclient.get_felt_earthquakes:')
-    test(await client.get_felt_earthquakes())
+    test_iter(await client.get_felt_earthquakes())
 
 if __name__ == '__main__':
   if os.name == 'nt':

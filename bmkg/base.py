@@ -18,9 +18,22 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from enum import auto
+from enum import auto, Enum
 
 from .constants import METRIC, VALID_UNITS
+
+class BasicEnum(Enum):
+  __slots__ = ()
+  
+  def __repr__(self) -> str:
+    """:class:`str`: The string representation of this object."""
+    
+    return f'{self.__class__.__name__}.{self.name}'
+  
+  def __str__(self) -> str:
+    """:class:`str`: The stylized name for this :class:`Enum`."""
+    
+    return self.name.replace('_', ' ').title()
 
 class CustomizableUnit:
   __slots__ = ('__unit', 'english')

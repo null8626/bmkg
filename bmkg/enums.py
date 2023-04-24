@@ -21,23 +21,19 @@ SOFTWARE.
 from typing import Optional, Self
 from enum import Enum
 
+from .base import BasicEnum
 from .constants import PROVINCE_PREFIX_REGEX
 from .errors import Error
 
-class AreaKind(Enum):
+class AreaKind(BasicEnum):
   """Represents kinds of areas."""
   
   __slots__ = ()
   
   LAND = 'land'
   SEA = 'sea'
-  
-  def __str__(self) -> str:
-    """:class:`str`: The stylized name for this :class:`Enum`."""
-    
-    return self.name.title()
 
-class Province(Enum):
+class Province(BasicEnum):
   """Represents a list of indonesian provinces."""
   
   __slots__ = ()
@@ -94,7 +90,7 @@ class Province(Enum):
     
     raise Error(f'"{name}" is not a valid province name.')
 
-class Direction(Enum):
+class Direction(BasicEnum):
   """Represents a wind direction."""
   
   __slots__ = ()
@@ -116,13 +112,8 @@ class Direction(Enum):
   NORTHWEST = "NW"
   NORTH_NORTHWEST = "NNW"
   FLUCTUATE = "VARIABLE"
-  
-  def __str__(self) -> str:
-    """:class:`str`: The stylized name for this :class:`Enum`."""
-    
-    return self.name.replace('_', ' ').title()
 
-class ForecastKind(Enum):
+class ForecastKind(BasicEnum):
   """Represents a weather forecast kind."""
   
   __slots__ = ()
@@ -146,13 +137,8 @@ class ForecastKind(Enum):
       return WeatherKind.PARTLY_CLOUDY
     elif name == "97":
       return WeatherKind.SEVERE_THUNDERSTORM
-  
-  def __str__(self) -> str:
-    """:class:`str`: The stylized name for this :class:`Enum`."""
-    
-    return self.name.replace('_', ' ').title()
 
-class MMI(Enum):
+class MMI(BasicEnum):
   """Represents an earthquake's MMI (Modified Mercalli Intensity) scale."""
   
   __slots__ = ()
@@ -170,11 +156,6 @@ class MMI(Enum):
   @classmethod
   def _missing_(self, value: str) -> Self:
     if value == "III":
-      return MMI.WEAK
+      return self.WEAK
     elif value == "XI" or value == "XII":
-      return MMI.EXTREME
-  
-  def __str__(self) -> str:
-    """:class:`str`: The stylized name for this :class:`Enum`."""
-    
-    return self.name.replace('_', ' ').title()
+      return self.EXTREME

@@ -41,6 +41,11 @@ class RecentEarthquake(CustomizableUnit):
     
     self.__inner = inner
   
+  def __repr__(self) -> str:
+    """:class:`str`: The string representation of this object."""
+    
+    return f'<{self.__class__.__name__} date={self.date!r} latitude={self.latitude!r} longitude={self.longitude!r} magnitude={self.magnitude!r} depth={self.depth!r}>'
+  
   @property
   def date(self) -> datetime:
     """:class:`datetime`: The date when this earthquake happened in UTC."""
