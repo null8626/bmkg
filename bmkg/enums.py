@@ -19,7 +19,6 @@ SOFTWARE.
 """
 
 from typing import Optional, Self
-from enum import Enum
 
 from .base import BasicEnum
 from .constants import PROVINCE_PREFIX_REGEX
