@@ -18,7 +18,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from typing import Optional, Self
+from typing import Optional, Self, Union
 
 from .base import BasicEnum
 from .constants import PROVINCE_PREFIX_REGEX
@@ -111,6 +111,61 @@ class Direction(BasicEnum):
   NORTHWEST = "NW"
   NORTH_NORTHWEST = "NNW"
   FLUCTUATE = "VARIABLE"
+  
+  def __contains__(self, degrees: Union[float, int]) -> bool:
+    """
+    Checks if the degrees value is a part of this wind direction.
+    
+    Parameters
+    ----------
+    degrees: Union[:class:`float`, :class:`int`]
+      The degrees value. Must be between 0 and 360.
+    
+    Raises
+    ------
+    Error
+      Invalid ``degrees`` argument.
+    
+    Returns
+    -------
+    :class:`bool`
+      The boolean.
+    """
+    
+    if not ((isinstance(degrees, int) or isinstance(degrees, float)) and 0 <= degrees <= 360): # yapf: disable
+      raise Error('Invalid degrees value.')
+    elif self is self.NORTH:
+      return degrees > 348.75 or degrees <= 11.25
+    elif self is self.NORTH_NORTHEAST:
+      return 11.25 < degrees <= 33.75
+    elif self is self.NORTHEAST:
+      return 33.75 < degrees <= 56.25
+    elif self is self.EAST_NORTHEAST:
+      return 56.25 < degrees <= 78.75
+    elif self is self.EAST:
+      return 78.75 < degrees <= 101.25
+    elif self is self.EAST_SOUTHEAST:
+      return 101.25 < degrees <= 123.75
+    elif self is self.SOUTHEAST:
+      return 123.75 < degrees <= 146.25
+    elif self is self.SOUTH_SOUTHEAST:
+      return 146.25 < degrees <= 168.75
+    elif self is self.SOUTH:
+      return 168.75 < degrees <= 191.25
+    elif self is self.SOUTH_SOUTHWEST:
+      return 191.25 < degrees <= 213.75
+    elif self is self.SOUTHWEST:
+      return 213.75 < degrees <= 236.25
+    elif self is self.WEST_SOUTHWEST:
+      return 236.25 < degrees <= 258.75
+    elif self is self.WEST:
+      return 258.75 < degrees <= 281.25
+    elif self is self.WEST_NORTHWEST:
+      return 281.25 < degrees <= 303.75
+    elif self is self.NORTHWEST:
+      return 303.75 < degrees <= 326.25
+    else:
+      return 326.25 < degrees <= 348.75
 
 class ForecastKind(BasicEnum):
   """Represents a weather forecast kind."""
