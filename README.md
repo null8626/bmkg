@@ -21,7 +21,7 @@ $ pip install bmkg
 ## Examples
 
 <details>
-<summary><b>Fetching the weather for a specific province</b></summary>
+<summary><b>Fetching the weather of a specific province</b></summary>
 
 ```py
 # import the module

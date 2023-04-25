@@ -79,7 +79,7 @@ class Client(CustomizableUnit):
     unit: Optional[auto] = None
   ) -> Weather: # yapf: disable
     """|coro|
-    Fetches a weather forecast for a specific province.
+    Fetches a weather forecast of a specific province.
     
     Parameters
     ----------
