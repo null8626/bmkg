@@ -31,7 +31,7 @@ from .enums import Province
 from .errors import Error
 
 class Client(CustomizableUnit):
-  """Represents a ``python_weather`` :class:`Client` class."""
+  """Represents a ``bmkg`` :class:`Client` class."""
   
   __slots__ = ('__session', 'english')
   
@@ -43,7 +43,7 @@ class Client(CustomizableUnit):
     session: Optional[ClientSession] = None
   ):
     """
-    Creates the python_weather client object.
+    Creates the bmkg client object.
     
     Parameters
     ----------
@@ -123,7 +123,7 @@ class Client(CustomizableUnit):
     unit: Optional[auto] = None
   ) -> Iterable[FeltEarthquake]: # yapf: disable
     """|coro|
-    Fetches the recent earthquakes regardless of their magnitude.
+    Fetches the most recent earthquakes regardless of their magnitude.
     
     Parameters
     ----------
@@ -161,7 +161,7 @@ class Client(CustomizableUnit):
     unit: Optional[auto] = None
   ) -> Iterable[RecentEarthquake]: # yapf: disable
     """|coro|
-    Fetches the recent earthquakes with the magnitude >= 5.0.
+    Fetches the most recent earthquakes with magnitude 5 or higher.
     
     Parameters
     ----------

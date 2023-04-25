@@ -18,7 +18,10 @@ Unofficial Python wrapper for the [BMKG (Meteorology, Climatology, and Geophysic
 $ pip install bmkg
 ```
 
-## Example
+## Examples
+
+<details>
+<summary><b>Fetching the weather for a specific province</b></summary>
 
 ```py
 # import the module
@@ -48,3 +51,93 @@ if __name__ == '__main__':
   
   asyncio.run(getweather())
 ```
+
+</details>
+<details>
+<summary><b>Fetching the latest earthquake</b></summary>
+
+```py
+# import the module
+import bmkg
+
+import asyncio
+import os
+
+async def getweather():
+  # declare the client. the measuring unit used defaults to the metric system (celcius, km/h, etc.)
+  async with bmkg.Client(unit=bmkg.IMPERIAL) as client:
+    # fetch the latest earthquake
+    earthquake = await client.get_latest_earthquake()
+    
+    print(repr(earthquake))
+
+if __name__ == '__main__':
+  # see https://stackoverflow.com/questions/45600579/asyncio-event-loop-is-closed-when-getting-loop
+  # for more details
+  if os.name == 'nt':
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+  
+  asyncio.run(getweather())
+```
+
+</details>
+<details>
+<summary><b>Fetching the most recent earthquakes with magnitude 5 or higher</b></summary>
+
+```py
+# import the module
+import bmkg
+
+import asyncio
+import os
+
+async def getweather():
+  # declare the client. the measuring unit used defaults to the metric system (celcius, km/h, etc.)
+  async with bmkg.Client(unit=bmkg.IMPERIAL) as client:
+    # fetch the most recent earthquakes with magnitude 5 or higher
+    earthquakes = await client.get_recent_earthquakes()
+    
+    # iterate through the generator
+    for earthquake in earthquakes:
+      print(repr(earthquake))
+
+if __name__ == '__main__':
+  # see https://stackoverflow.com/questions/45600579/asyncio-event-loop-is-closed-when-getting-loop
+  # for more details
+  if os.name == 'nt':
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+  
+  asyncio.run(getweather())
+```
+
+</details>
+<details>
+<summary><b>Fetching the most recent earthquakes regardless of their magnitude</b></summary>
+
+```py
+# import the module
+import bmkg
+
+import asyncio
+import os
+
+async def getweather():
+  # declare the client. the measuring unit used defaults to the metric system (celcius, km/h, etc.)
+  async with bmkg.Client(unit=bmkg.IMPERIAL) as client:
+    # fetch the most recent earthquakes regardless of their magnitude
+    earthquakes = await client.get_felt_earthquakes()
+    
+    # iterate through the generator
+    for earthquake in earthquakes:
+      print(repr(earthquake))
+
+if __name__ == '__main__':
+  # see https://stackoverflow.com/questions/45600579/asyncio-event-loop-is-closed-when-getting-loop
+  # for more details
+  if os.name == 'nt':
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+  
+  asyncio.run(getweather())
+```
+
+</details>
