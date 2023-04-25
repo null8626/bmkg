@@ -82,7 +82,7 @@ if __name__ == '__main__':
 
 </details>
 <details>
-<summary><b>Fetching the most recent earthquakes with magnitude 5 or higher</b></summary>
+<summary><b>Fetching the most recent earthquakes magnitude 5 or higher</b></summary>
 
 ```py
 # import the module
@@ -94,7 +94,7 @@ import os
 async def getweather():
   # declare the client. the measuring unit used defaults to the metric system (celcius, km/h, etc.)
   async with bmkg.Client(unit=bmkg.IMPERIAL) as client:
-    # fetch the most recent earthquakes with magnitude 5 or higher
+    # fetch the most recent earthquakes magnitude 5 or higher
     earthquakes = await client.get_recent_earthquakes()
     
     # iterate through the generator

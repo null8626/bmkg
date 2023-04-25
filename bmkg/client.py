@@ -161,7 +161,7 @@ class Client(CustomizableUnit):
     unit: Optional[auto] = None
   ) -> Iterable[RecentEarthquake]: # yapf: disable
     """|coro|
-    Fetches the most recent earthquakes with magnitude 5 or higher.
+    Fetches the most recent earthquakes magnitude 5 or higher.
     
     Parameters
     ----------
