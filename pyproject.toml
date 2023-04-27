@@ -8,7 +8,7 @@ description = "Unofficial Python wrapper for the BMKG (Meteorology, Climatology,
 readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "null8626" }]
-keywords = ["weather", "bmkg", "indonesia", "wrapper"]
+keywords = ["weather", "forecast", "indonesia", "weather-api", "weather-forecast", "bmkg"]
 dependencies = ["aiohttp>=3.0.0"]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
