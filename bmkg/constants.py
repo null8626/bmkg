@@ -21,8 +21,8 @@ SOFTWARE.
 from re import compile
 from enum import auto
 
-METRIC = auto('METRIC')
-IMPERIAL = auto('IMPERIAL')
+METRIC = auto()
+IMPERIAL = auto()
 
 AFFECTED_REGION_REGEX = compile(r'^([IVX]+\s*\-\s*)?([IVX]+) (.*?)$')
 PROVINCE_PREFIX_REGEX = compile(r'^d\.?(k\.?)?i\.?')

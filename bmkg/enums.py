@@ -18,7 +18,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from typing import Optional, Self, Union
+from typing import Optional, Union
 
 from .base import BasicEnum
 from .constants import PROVINCE_PREFIX_REGEX
@@ -74,7 +74,7 @@ class Province(BasicEnum):
   INDONESIA = "Indonesia"
   
   @classmethod
-  def _missing_(self, name: Optional[str]) -> Self:
+  def _missing_(self, name: Optional[str]):
     if name is None:
       return self.INDONESIA
     
@@ -186,7 +186,7 @@ class ForecastKind(BasicEnum):
   SEVERE_THUNDERSTORM = "95"
   
   @classmethod
-  def _missing_(self, name: str) -> Self:
+  def _missing_(self, name: str):
     if name == "2":
       return WeatherKind.PARTLY_CLOUDY
     elif name == "97":
@@ -208,7 +208,7 @@ class MMI(BasicEnum):
   EXTREME = "X"
   
   @classmethod
-  def _missing_(self, value: str) -> Self:
+  def _missing_(self, value: str):
     if value == "III":
       return self.WEAK
     elif value == "XI" or value == "XII":

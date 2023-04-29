@@ -19,7 +19,7 @@ SOFTWARE.
 """
 
 from aiohttp import ClientSession, ClientTimeout, TCPConnector
-from typing import Iterable, Optional, Self, Union
+from typing import Iterable, Optional, Union
 from xml.etree.ElementTree import fromstring
 from enum import auto
 
@@ -234,7 +234,7 @@ class Client(CustomizableUnit):
     if not self.__session.closed:
       await self.__session.close()
   
-  async def __aenter__(self) -> Self:
+  async def __aenter__(self):
     """|coro|
     `async with` handler. Does nothing. Returns `self`
     """
